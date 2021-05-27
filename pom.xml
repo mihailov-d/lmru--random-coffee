@@ -27,6 +27,7 @@
         <spring.proc.version>2.4.5</spring.proc.version>
         <junit-jupiter.version>5.7.2</junit-jupiter.version>
         <brick.name>random-coffee</brick.name>
+        <telegram.bot.version>5.2.0</telegram.bot.version>
     </properties>
 
     <parent>
@@ -258,7 +259,12 @@
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
-            <version>5.2.0</version>
+            <version>${telegram.bot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots-abilities</artifactId>
+            <version>${telegram.bot.version}</version>
         </dependency>
 
         <dependency>
