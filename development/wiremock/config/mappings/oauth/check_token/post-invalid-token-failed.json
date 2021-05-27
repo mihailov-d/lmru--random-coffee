@@ -1,0 +1,32 @@
+{
+  "priority": 11,
+  "name": "failed-invalid-token-check-token",
+  "request": {
+    "method": "POST",
+    "urlPath": "/oauth/check_token",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic Y2xpZW50LWRldjpwYXNzLWRldg=="
+      }
+    },
+    "queryParameters": {
+      "token": {
+        "equalTo": "d0dbc2ee-b3eb-4bd4-b390-3d8dc7eb2550",
+        "caseInsensitive": true
+      }
+    }
+  },
+  "response": {
+    "headers": {
+      "Content-type": "application/json;charset=UTF-8"
+    },
+    "status": 401,
+    "fixedDelayMilliseconds": 120,
+    "bodyFileName": "oauth/check_token/get-invalid-token-response.json",
+    "transformers": ["response-template"]
+  },
+  "metadata": {
+    "token": "",
+    "systemToken": "Y2xpZW50LWRldjpwYXNzLWRldg=="
+  }
+}

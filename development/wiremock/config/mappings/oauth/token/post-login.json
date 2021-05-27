@@ -1,0 +1,31 @@
+{
+  "priority": 10,
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/oauth/token.*",
+    "queryParameters": {
+      "grant_type": {
+        "equalTo": "password"
+      },
+      "username": {
+        "equalTo": "60087654"
+      },
+      "password": {
+        "equalTo": "passme"
+      }
+    },
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic my_oauth_token"
+      }
+    }
+  },
+  "response": {
+    "headers": {
+      "Content-type": "application/json;charset=UTF-8"
+    },
+    "status": 200,
+    "fixedDelayMilliseconds": 120,
+    "bodyFileName": "oauth/token/basic-login-response.json"
+  }
+}

@@ -1,0 +1,135 @@
+brick:
+  version: @project.version@
+  name: @brick.name@
+
+server:
+  port: ${PORT:11650}
+  servlet:
+    session:
+      tracking-modes: URL
+      timeout: 0m
+  forward-headers-strategy: framework
+
+
+spring:
+  application:
+    name: @project.name@
+  cloud:
+    vault:
+      authentication: approle
+      namespace: ${APP_VAULT_NAMESPACE}
+      port: ${APP_VAULT_SERVER_PORT}
+      host: ${APP_VAULT_SERVER_HOST}
+      scheme: ${APP_VAULT_SERVER_PROTOCOL}
+      fail-fast: true
+      app-role:
+        secret-id: ${APP_SECRET_ID}
+        role-id: ${APP_ROLE_ID}
+        role: ${APP_ROLE}
+      kv:
+        profile-separator: "/"
+        backend: ${brick.name}
+        application-name: ${spring.application.name}
+      config:
+        lifecycle:
+          min-renewal: PT30S
+      enabled: true
+  jackson:
+    deserialization:
+      read-unknown-enum-values-using-default-value: true
+  #  data:
+  #    mongodb:
+  #      uri: <connection url>
+  session:
+    store-type: none
+#  zipkin:
+#    enabled: false
+
+opentracing:
+  jaeger:
+    log-spans: false
+    enable-b3-propagation: true
+  spring:
+    cloud:
+      log:
+        enabled: false
+
+
+management:
+  health:
+    vault:
+      enabled: false
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: false
+    pause:
+      enabled: true
+    prometheus:
+      enabled: true
+    restart:
+      enabled: true
+    resume:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    web:
+      server:
+        request:
+          autotime:
+            percentiles:
+              - 0.50
+              - 0.95
+              - 0.99
+  endpoints:
+    web:
+      exposure:
+        include: 'health,info,pause,prometheus,restart,resume'
+      base-path: '/'
+      path-mapping:
+        health: actuator/health
+        info: actuator/info
+        pause: actuator/pause
+        prometheus: metrics
+        restart: actuator/restart
+        resume: actuator/resume
+
+
+logging:
+  file:
+    name: logs/${spring.application.name}.log
+  level:
+    ROOT: INFO
+    com.netflix.discovery.shared.resolver.aws: WARN
+    org.zalando.logbook.Logbook: TRACE
+    ru.leroymerlin.order.view: DEBUG
+
+  pattern:
+    console: "${brick.name}_${spring.application.name} %clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%X{traceId},%X{parentSpanId:-},%X{spanId:-}]){blue}[%thread] %clr(%-5level) %clr(%logger{36}){magenta} - %msg%n"
+  register-shutdown-hook: true
+
+
+logbook:
+  exclude:
+    - /actuator/health
+    - /metrics
+    - /health
+    - /v3/api-docs
+    - /v2/api-docs
+    - /swagger-ui/**
+    - /swagger-ui.html
+    - /admin/**
+    - /webjars/**
+    - /swagger-resources/**
+  obfuscate:
+    headers:
+      - Authorization
+      - X-Secret
+      - x-api-key
+    parameters:
+      - access_token
+      - password
+      - token

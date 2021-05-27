@@ -1,0 +1,5 @@
+clients:
+  loyalty-repository:
+    url-origin: https://test-api-internal-op.apigee.lmru.tech
+  oauth:
+    url-origin: https://oauth.iam.uat.lmru.adeo.com
