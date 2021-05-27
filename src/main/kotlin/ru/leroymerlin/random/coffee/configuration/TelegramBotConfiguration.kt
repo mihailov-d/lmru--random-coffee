@@ -13,6 +13,7 @@ import org.telegram.abilitybots.api.util.AbilityUtils.getChatId
 import org.telegram.telegrambots.meta.TelegramBotsApi
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
@@ -79,7 +80,15 @@ class RandomCoffeeBot(private val botUsername: String, private val botToken: Str
     }
 
     fun fillCardReply(): Reply {
-        return Reply.of({ b, update -> silent.send("Got it", getChatId(update)) },
+        return Reply.of({ b, update ->
+            val message = SendMessage()
+            val removeKeyboard = ReplyKeyboardRemove()
+            removeKeyboard.removeKeyboard = true
+            message.replyMarkup = removeKeyboard
+            message.chatId = getChatId(update).toString()
+            message.text = "Got it"
+            val e = execute(message)
+        },
                 Predicate { update -> update.hasMessage() && update.message.hasText() && update.message.text.contains("Заполнить карточку") })
     }
 
