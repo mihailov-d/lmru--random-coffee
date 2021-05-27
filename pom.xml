@@ -377,7 +377,7 @@
                                     <artifactId>${project.artifactId}</artifactId>
                                     <version>${project.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${project.build.directory}/${project.artifactId}
+                                    <outputDirectory>${project.build.directory}/docker-image-source
                                     </outputDirectory>
                                 </artifactItem>
                             </artifactItems>

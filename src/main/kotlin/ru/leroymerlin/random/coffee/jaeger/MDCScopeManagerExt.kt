@@ -1,10 +1,9 @@
 package ru.leroymerlin.random.coffee.jaeger
 
-import io.opentracing.ScopeManager
-import io.opentracing.util.ThreadLocalScopeManager
 import io.jaegertracing.internal.JaegerSpanContext
 import io.opentracing.Scope
 import io.opentracing.Span
+import io.opentracing.util.ThreadLocalScopeManager
 import org.slf4j.MDC
 
 class MDCScopeManagerExt private constructor(builder: Builder) : ThreadLocalScopeManager() {
@@ -64,7 +63,8 @@ class MDCScopeManagerExt private constructor(builder: Builder) : ThreadLocalScop
         private val previousSampled: String? = MDC.get(mdcSampledKey)
 
         protected fun putContext(spanContext: JaegerSpanContext) {
-            val parentSpanId = if (spanContext.parentId != 0L) java.lang.Long.toHexString(spanContext.parentId) else null
+            val parentSpanId =
+                if (spanContext.parentId != 0L) java.lang.Long.toHexString(spanContext.parentId) else null
             replace(mdcTraceIdKey, spanContext.toTraceId())
             replace(mdcParentSpanIdKey, parentSpanId)
             replace(mdcSpanIdKey, spanContext.toSpanId())

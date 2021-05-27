@@ -2,15 +2,3 @@ spring:
   cloud:
     vault:
       enabled: false
-
-app:
-  apigee:
-    api-key: UHVscCBGaWN0aW9u
-
-clients:
-  loyalty-repository:
-    url-origin: http://localhost:8087
-  oauth:
-    url-origin: http://localhost:8087
-    username: client-dev
-    password: pass-dev
