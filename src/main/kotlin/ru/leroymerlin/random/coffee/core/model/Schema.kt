@@ -9,7 +9,7 @@ import java.time.LocalDate
     val info:   Info,
     val company:    Company,
     val contact:    Contact,
-    val meetInfo:   meetInfo
+    val meetInfo:   MeetInfo
     )
 @Document data class Company(
     @Id val id: String,
@@ -27,7 +27,7 @@ import java.time.LocalDate
     val firstName:  String,
     val surName: String
 )
-@Document data class meetInfo(
+@Document data class MeetInfo(
     @Id val id: String,
     val date:   LocalDate,
     val name:   String
