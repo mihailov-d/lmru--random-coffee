@@ -22,6 +22,9 @@ spring:
       read-unknown-enum-values-using-default-value: true
   session:
     store-type: none
+  data:
+    mongodb:
+      uuid-representation: standard
 #  zipkin:
 #    enabled: false
 
