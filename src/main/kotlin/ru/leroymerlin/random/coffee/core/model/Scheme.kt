@@ -41,7 +41,10 @@ import java.util.UUID
     val draftBasicUser: UserBasicUpdateRequest? = null,
     val draftMeeting: MeetingUpdateRequest? = null,
     val draftCommunicationUser: UserCommunicationsUpdateRequest? = null,
-    val draftAboutUser: UserAboutUpdateRequest? = null
+    val draftAboutUser: UserAboutUpdateRequest? = null,
+    val createdDate: LocalDateTime = LocalDateTime.now(),
+    val editedDate: LocalDateTime = LocalDateTime.now()
+
 )
 
 @Document data class Meeting(
