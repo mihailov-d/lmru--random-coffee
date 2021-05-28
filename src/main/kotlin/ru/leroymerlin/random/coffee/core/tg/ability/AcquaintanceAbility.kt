@@ -26,7 +26,7 @@ import java.util.function.Predicate
 class AcquaintanceAbility : AbilityExtension {
 
     @Autowired
-    lateinit var userSessionStateService: SessionService
+    lateinit var sessionService: SessionService
 
     @Autowired
     lateinit var userService: UserService
@@ -54,7 +54,7 @@ class AcquaintanceAbility : AbilityExtension {
         message.text = "Введите вашу почту, по которой с вами можно связаться для встречи"
         b.execute(message)
 
-        userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_EMAIL)
+        sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_EMAIL)
     }, textEquals("Почта"))
 
     fun typePhoneReply(): Reply = Reply.of({ b, update ->
@@ -64,7 +64,7 @@ class AcquaintanceAbility : AbilityExtension {
         message.text = "Введите ваш телефон, по которому с вами можно связаться для встречи"
         b.execute(message)
 
-        userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_PHONE)
+        sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_PHONE)
     }, textEquals("Телефон"))
 
     fun typeInputNameReply(): Reply = Reply.of({ b, update ->
@@ -74,7 +74,7 @@ class AcquaintanceAbility : AbilityExtension {
         message.text = "Введите ваше имя для анкеты"
         b.execute(message)
 
-        userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_NAME)
+        sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_NAME)
     }, textEquals("Ввести имя"))
 
     fun typeInputSurnameReply(): Reply = Reply.of({ b, update ->
@@ -84,7 +84,7 @@ class AcquaintanceAbility : AbilityExtension {
         message.text = "Введите вашу фамилию для анкеты"
         b.execute(message)
 
-        userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_SURNAME)
+        sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_SURNAME)
     }, textEquals("Ввести фамилию"))
 
     fun typeAboutMeReply(): Reply = Reply.of({ b, update ->
@@ -94,7 +94,7 @@ class AcquaintanceAbility : AbilityExtension {
         message.text = "Введите информацию о себе для анкеты"
         b.execute(message)
 
-        userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_ABOUT_ME)
+        sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_ABOUT_ME)
     }, textEquals("Ввести информацию о себе"))
 
     fun typeAboutJobReply(): Reply = Reply.of({ b, update ->
@@ -104,7 +104,7 @@ class AcquaintanceAbility : AbilityExtension {
         message.text = "Введите информацию о работе для анкеты"
         b.execute(message)
 
-        userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_ABOUT_JOB)
+        sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_ABOUT_JOB)
     }, textEquals("Ввести информацию о работе"))
 
     fun typeTelegramReply(): Reply = Reply.of({ b, update ->
@@ -119,12 +119,12 @@ class AcquaintanceAbility : AbilityExtension {
         message.text = "Спасибо, мы сохранили ваш telegram id как контактный: `@$userName`"
         b.execute(message)
 
-        val userSession = userSessionStateService.getStateByChatId(update.chatId()).let {
+        val userSession = sessionService.getStateByChatId(update.chatId()).let {
             val updatedSession = it.copy(draftCommunicationUser = it.draftCommunicationUser?.copy(telegram = userName, preferCommunications = setOf(UserPreferCommunicationEnum.TELEGRAM))
                     ?: UserCommunicationsUpdateRequest(UUID.randomUUID(), null, null, userName, setOf(UserPreferCommunicationEnum.TELEGRAM)))
-            userSessionStateService.saveState(updatedSession)
+            sessionService.saveState(updatedSession)
         }
-        userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.NONE)
+        sessionService.updateChatStateByChatId(update.chatId(), ChatState.NONE)
         userService.update(userSession.draftCommunicationUser!!)
 
         val message2 = SendMessage()
@@ -142,45 +142,45 @@ class AcquaintanceAbility : AbilityExtension {
     fun commonTextAbility(): Reply = Reply.of({ b, update ->
         val chatId = update.chatId()
 
-        when (userSessionStateService.getChatStateByChatId(chatId)) {
+        when (sessionService.getChatStateByChatId(chatId)) {
             ChatState.INPUT_EMAIL -> {
                 val userEmail = update.message.text.trim()
                 // TODO email validation
                 b.silent().sendMd("Спасибо, мы сохранили твой email: `$userEmail`", chatId)
-                val userSession = userSessionStateService.getStateByChatId(update.chatId()).let {
+                val userSession = sessionService.getStateByChatId(chatId).let {
                     val updatedSession = it.copy(draftCommunicationUser = it.draftCommunicationUser?.copy(email = userEmail, preferCommunications = setOf(UserPreferCommunicationEnum.EMAIL))
                             ?: UserCommunicationsUpdateRequest(UUID.randomUUID(), null, userEmail, null, setOf(UserPreferCommunicationEnum.EMAIL)))
-                    userSessionStateService.saveState(updatedSession)
+                    sessionService.saveState(updatedSession)
                 }
-                userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
+                sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
                 userService.update(userSession.draftCommunicationUser!!)
             }
             ChatState.INPUT_PHONE -> {
                 val userPhone = update.message.text.trim()
                 // TODO phone validation
                 b.silent().sendMd("Спасибо, мы сохранили твой телефон: `$userPhone`", chatId)
-                val userSession = userSessionStateService.getStateByChatId(update.chatId()).let {
+                val userSession = sessionService.getStateByChatId(chatId).let {
                     val updatedSession = it.copy(draftCommunicationUser = it.draftCommunicationUser?.copy(phone = userPhone, preferCommunications = setOf(UserPreferCommunicationEnum.PHONE))
                             ?: UserCommunicationsUpdateRequest(UUID.randomUUID(), phone = userPhone, null, null, setOf(UserPreferCommunicationEnum.PHONE)))
-                    userSessionStateService.saveState(updatedSession)
+                    sessionService.saveState(updatedSession)
                 }
 
-                userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
+                sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
                 userService.update(userSession.draftCommunicationUser!!)
             }
             ChatState.INPUT_NAME -> {
                 val name = update.message.text.trim()
                 // TODO name validation
 
-                val userSession = userSessionStateService.getStateByChatId(update.chatId()).let {
+                val userSession = sessionService.getStateByChatId(chatId).let {
                     val updatedSession = it.copy(draftBasicUser = it.draftBasicUser?.copy(name = name)
                             ?: UserBasicUpdateRequest(UUID.randomUUID(), name, null))
-                    userSessionStateService.saveState(updatedSession)
+                    sessionService.saveState(updatedSession)
                 }
 
                 val message2 = SendMessage()
                 val replyKeyboardMarkup = ReplyKeyboardMarkup()
-                val currentState = userSessionStateService.getStateByChatId(update.chatId())
+                val currentState = sessionService.getStateByChatId(chatId)
                 if (currentState.isNameAndSurnameFill()) {
                     replyKeyboardMarkup.keyboard = listOf(
                             keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build()),
@@ -196,22 +196,22 @@ class AcquaintanceAbility : AbilityExtension {
                 message2.chatId = update.stringChatId()
                 message2.text = "Ваше имя для анкеты: $name"
                 b.execute(message2)
-                userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
+                sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
             }
             ChatState.INPUT_SURNAME -> {
                 val surname = update.message.text.trim()
                 // TODO surname validation
 
-                val userSession = userSessionStateService.getStateByChatId(update.chatId()).let {
+                val userSession = sessionService.getStateByChatId(chatId).let {
                     val updatedSession = it.copy(draftBasicUser = it.draftBasicUser?.copy(surname = surname)
                             ?: UserBasicUpdateRequest(UUID.randomUUID(), null, surname))
-                    userSessionStateService.saveState(updatedSession)
+                    sessionService.saveState(updatedSession)
                 }
 
                 val message2 = SendMessage()
                 val replyKeyboardMarkup = ReplyKeyboardMarkup()
 
-                val currentState = userSessionStateService.getStateByChatId(update.chatId())
+                val currentState = sessionService.getStateByChatId(chatId)
                 if (currentState.isNameAndSurnameFill()) {
                     replyKeyboardMarkup.keyboard = listOf(
                             keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build()),
@@ -227,21 +227,21 @@ class AcquaintanceAbility : AbilityExtension {
                 message2.chatId = update.stringChatId()
                 message2.text = "Ваша фамилия для анкеты: $surname"
                 b.execute(message2)
-                userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
+                sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
             }
             ChatState.INPUT_ABOUT_ME -> {
                 val aboutMe = update.message.text.trim()
 
-                val userSession = userSessionStateService.getStateByChatId(update.chatId()).let {
+                val userSession = sessionService.getStateByChatId(chatId).let {
                     val updatedSession = it.copy(draftAboutUser = it.draftAboutUser?.copy(aboutMe = aboutMe)
                             ?: UserAboutUpdateRequest(UUID.randomUUID(), aboutMe, null))
-                    userSessionStateService.saveState(updatedSession)
+                    sessionService.saveState(updatedSession)
                 }
 
                 val message2 = SendMessage()
                 val replyKeyboardMarkup = ReplyKeyboardMarkup()
 
-                val currentState = userSessionStateService.getStateByChatId(update.chatId())
+                val currentState = sessionService.getStateByChatId(chatId)
                 if (currentState.isAboutFill()) {
                     replyKeyboardMarkup.keyboard = listOf(
                             keyboardRow(KeyboardButton.builder().text("Создать встречу").build())
@@ -256,21 +256,21 @@ class AcquaintanceAbility : AbilityExtension {
                 message2.chatId = update.stringChatId()
                 message2.text = "Ваша информация о себе в анкете обновлена"
                 b.execute(message2)
-                userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
+                sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
             }
             ChatState.INPUT_ABOUT_JOB -> {
                 val aboutJob = update.message.text.trim()
 
-                val userSession = userSessionStateService.getStateByChatId(update.chatId()).let {
+                val userSession = sessionService.getStateByChatId(chatId).let {
                     val updatedSession = it.copy(draftAboutUser = it.draftAboutUser?.copy(aboutJob = aboutJob)
                             ?: UserAboutUpdateRequest(UUID.randomUUID(), null, aboutJob))
-                    userSessionStateService.saveState(updatedSession)
+                    sessionService.saveState(updatedSession)
                 }
 
                 val message2 = SendMessage()
                 val replyKeyboardMarkup = ReplyKeyboardMarkup()
 
-                val currentState = userSessionStateService.getStateByChatId(update.chatId())
+                val currentState = sessionService.getStateByChatId(chatId)
                 if (currentState.isAboutFill()) {
                     replyKeyboardMarkup.keyboard = listOf(
                             keyboardRow(KeyboardButton.builder().text("Создать встречу").build())
@@ -285,17 +285,17 @@ class AcquaintanceAbility : AbilityExtension {
                 message2.chatId = update.stringChatId()
                 message2.text = "Ваша информация о своей работе в анкете обновлена"
                 b.execute(message2)
-                userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
+                sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
             }
             else -> {
                 b.silent().send("Неизвестное состояние. Сбрасываю диалог", chatId)
-                userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
+                sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
             }
         }
 
     }, Predicate { update ->
         setOf("Почта", "Телефон", "Ввести имя", "Ввести фамилию", "Ввести информацию о себе", "Ввести информацию о работе").contains(update.message.text).not() &&
-                userSessionStateService.getStateByChatId(update.chatId()).let {
+                sessionService.getStateByChatId(update.chatId()).let {
                     setOf(ChatState.INPUT_EMAIL, ChatState.INPUT_PHONE,
                             ChatState.INPUT_NAME, ChatState.INPUT_SURNAME,
                             ChatState.INPUT_ABOUT_JOB, ChatState.INPUT_ABOUT_ME).contains(it.currentChatState)

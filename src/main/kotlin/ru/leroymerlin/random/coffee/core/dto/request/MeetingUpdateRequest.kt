@@ -4,9 +4,10 @@ import ru.leroymerlin.random.coffee.core.dto.LocationTypeEnum
 import java.util.UUID
 
 data class MeetingUpdateRequest(
-    val id: UUID,
-    val aim: String?,
-    val locationType: LocationTypeEnum?,
-    val location: String?,
-    val comment: String = ""
+        val id: UUID,
+        val aim: String?,
+        val locationType: LocationTypeEnum?,
+        val topicType: TopicTypeEnum?,
+        val location: String?,
+        val comment: String = ""
 )
