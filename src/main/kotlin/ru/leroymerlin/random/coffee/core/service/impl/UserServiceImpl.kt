@@ -15,35 +15,35 @@ import java.util.UUID
 class UserServiceImpl : UserService {
 
     @Autowired
-    internal lateinit var userRepository : UserRepository
+    internal lateinit var userRepository: UserRepository
 
     override fun create(createReq: UserCreateRequest): User {
         val user = User(UUID.randomUUID(),
-        createReq.telegramUserId)
+                createReq.telegramUserId)
 
         return userRepository.save(user)
     }
 
     override fun update(updateReq: UserBasicUpdateRequest): User {
         val userEntity = userRepository.findOneById(updateReq.id)
-            .copy(name=updateReq.name, surname = updateReq.surname)
+                .copy(name = updateReq.name, surname = updateReq.surname)
 
         return userRepository.save(userEntity)
     }
 
     override fun update(updateReq: UserAboutUpdateRequest): User {
         val userEntity = userRepository.findOneById(updateReq.id)
-            .copy(aboutJob = updateReq.aboutJob, aboutMe = updateReq.aboutMe)
+                .copy(aboutJob = updateReq.aboutJob, aboutMe = updateReq.aboutMe)
 
         return userRepository.save(userEntity)
     }
 
     override fun update(updateReq: UserCommunicationsUpdateRequest): User {
         val userEntity = userRepository.findOneById(updateReq.id)
-            .copy(email = updateReq.email,
-                phone = updateReq.phone,
-                telegramUserId = updateReq.telegram,
-                preferCommunications = updateReq.preferCommunications)
+                .copy(email = updateReq.email,
+                        phone = updateReq.phone,
+                        telegramUsername = updateReq.telegramUsername,
+                        preferCommunications = updateReq.preferCommunications)
 
         return userRepository.save(userEntity)
     }
