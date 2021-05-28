@@ -5,7 +5,14 @@ import org.telegram.abilitybots.api.objects.Ability
 import org.telegram.abilitybots.api.objects.Locality
 import org.telegram.abilitybots.api.objects.MessageContext
 import org.telegram.abilitybots.api.objects.Privacy
+import org.telegram.abilitybots.api.objects.Reply
 import org.telegram.abilitybots.api.util.AbilityExtension
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
+import ru.leroymerlin.random.coffee.core.util.stringChatId
+import java.util.function.Predicate
 
 @Component
 class MockedAbilities : AbilityExtension {
@@ -122,14 +129,39 @@ class MockedAbilities : AbilityExtension {
     }
 
     fun findCoffeeFriendAbility(): Ability {
+        // example with inline keyboard
         return Ability.builder()
-                .name("findCoffeeFriend")
+                .name("test101")
                 .info("find Coffee Friend")
                 .privacy(Privacy.PUBLIC)
                 .locality(Locality.USER)
-                .action { ctx: MessageContext -> ctx.bot().silent().send("mock", ctx.chatId()) }
+                .action { ctx: MessageContext ->
+                    val inlineKeyboardMarkup = InlineKeyboardMarkup()
+                    inlineKeyboardMarkup.keyboard = listOf(
+                            listOf(InlineKeyboardButton.builder().callbackData("data").text("Online101").build()),
+                            listOf(InlineKeyboardButton.builder().callbackData("data101").text("Offline").build())
+                    )
+
+                    val message = SendMessage()
+                    message.chatId = ctx.update().stringChatId()
+                    message.text = "Try with ability"
+                    message.replyMarkup = inlineKeyboardMarkup
+                    ctx.bot().execute(message)
+                }
+                .post { ctx: MessageContext ->
+                    println("post")
+                }
                 .build()
     }
+
+    fun online101(): Reply = Reply.of({ b, update ->
+        // example edit message
+        val editMessageText = EditMessageText()
+        editMessageText.chatId = update.stringChatId()
+        editMessageText.messageId = update.callbackQuery.message.messageId
+        editMessageText.text = "Ok, you push ${update.callbackQuery.data} and text `${update.callbackQuery.message.text}`"
+        b.execute(editMessageText)
+    }, Predicate { update -> update.hasCallbackQuery() })
 
     fun createCoffeeReqAbility(): Ability {
         return Ability.builder()

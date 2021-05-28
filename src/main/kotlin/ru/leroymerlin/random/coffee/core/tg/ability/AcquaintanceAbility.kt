@@ -355,13 +355,13 @@ class AcquaintanceAbility : AbilityExtension {
         }
 
     }, Predicate { update ->
-        setOf(
-                CommandList.ACQUAINTANCE_INPUT_EMAIL.command, CommandList.ACQUAINTANCE_INPUT_PHONE.command, CommandList.ACQUAINTANCE_INPUT_NAME.command, CommandList.ACQUAINTANCE_INPUT_SURNAME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_ME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_WORK.command
-        ).contains(update.message.text).not() &&
-                sessionService.getStateByChatId(update.chatId()).let {
-                    setOf(ChatState.INPUT_EMAIL, ChatState.INPUT_PHONE,
-                            ChatState.INPUT_NAME, ChatState.INPUT_SURNAME,
-                            ChatState.INPUT_ABOUT_JOB, ChatState.INPUT_ABOUT_ME).contains(it.currentChatState)
-                }
+(update.hasMessage() && setOf(
+        CommandList.ACQUAINTANCE_INPUT_EMAIL.command, CommandList.ACQUAINTANCE_INPUT_PHONE.command, CommandList.ACQUAINTANCE_INPUT_NAME.command, CommandList.ACQUAINTANCE_INPUT_SURNAME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_ME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_WORK.command
+).contains(update.message.text).not()) &&
+        sessionService.getStateByChatId(update.chatId()).let {
+            setOf(ChatState.INPUT_EMAIL, ChatState.INPUT_PHONE,
+                    ChatState.INPUT_NAME, ChatState.INPUT_SURNAME,
+                    ChatState.INPUT_ABOUT_JOB, ChatState.INPUT_ABOUT_ME).contains(it.currentChatState)
+        }
     })
 }
