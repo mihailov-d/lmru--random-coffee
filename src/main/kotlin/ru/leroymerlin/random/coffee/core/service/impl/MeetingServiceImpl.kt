@@ -11,31 +11,34 @@ import ru.leroymerlin.random.coffee.core.service.MeetingService
 import java.util.UUID
 
 @Service
-class MeetingServiceImpl : MeetingService{
+class MeetingServiceImpl : MeetingService {
 
     @Autowired
-    internal lateinit var meetingRepository : MeetingRepository
+    internal lateinit var meetingRepository: MeetingRepository
 
     override fun create(createReq: MeetingCreateRequest): Meeting {
         val meeting = Meeting(UUID.randomUUID(),
-            createReq.userId)
+                createReq.userId,
+                topicTypeEnum = createReq.topicTypeEnum,
+                preferDate = createReq.preferDate
+        )
 
         return meetingRepository.save(meeting)
     }
 
     override fun update(updateReq: MeetingUpdateRequest): Meeting {
         val meetingEntity = meetingRepository.findOneById(updateReq.id)
-            .copy(aim = updateReq.aim,
-                comment = updateReq.comment,
-                location = updateReq.location,
-                locationType = updateReq.locationType)
+                .copy(aim = updateReq.aim,
+                        comment = updateReq.comment,
+                        location = updateReq.location,
+                        locationType = updateReq.locationType)
 
         return meetingRepository.save(meetingEntity)
     }
 
     override fun cancel(id: UUID) {
         val meetingEntity = meetingRepository.findOneById(id)
-            .copy(status = MeetingStatusEnum.CANCELLED)
+                .copy(status = MeetingStatusEnum.CANCELLED)
 
         meetingRepository.save(meetingEntity)
     }

@@ -8,11 +8,13 @@ import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum
 import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum
 import ru.leroymerlin.random.coffee.core.dto.UserStatusEnum
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingUpdateRequest
+import ru.leroymerlin.random.coffee.core.dto.request.TopicTypeEnum
 import ru.leroymerlin.random.coffee.core.dto.request.UserAboutUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserBasicUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserCommunicationsUpdateRequest
 import ru.leroymerlin.random.coffee.core.util.TgChatId
 import ru.leroymerlin.random.coffee.core.util.TgUserId
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -49,13 +51,15 @@ import java.util.UUID
 )
 
 @Document data class Meeting(
-    @Id val id: UUID,
-    val userId: UUID,
-    val createdDate: LocalDateTime = LocalDateTime.now(),
-    val editedDate: LocalDateTime = LocalDateTime.now(),
-    val aim: String? = null,
-    val comment: String? = null,
-    val locationType: LocationTypeEnum? = null,
-    val location: String? = null,
-    val status: MeetingStatusEnum = MeetingStatusEnum.DRAFT
+        @Id val id: UUID,
+        val userId: UUID,
+        val createdDate: LocalDateTime = LocalDateTime.now(),
+        val editedDate: LocalDateTime = LocalDateTime.now(),
+        val topicTypeEnum: TopicTypeEnum,
+        val preferDate: LocalDate,
+        val aim: String? = null,
+        val comment: String? = null,
+        val locationType: LocationTypeEnum? = null,
+        val location: String? = null,
+        val status: MeetingStatusEnum = MeetingStatusEnum.DRAFT
 )
