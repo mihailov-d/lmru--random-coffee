@@ -11,7 +11,9 @@ class OpenAPIConfig {
 
     @Bean
     fun customOpenAPI(@Value("\${brick.version}") appVersion: String? = null) =
-        OpenAPI().info(Info()
-            .description("Random Coffee REST API for web application")
-            .title("Random Coffee REST").version(appVersion))!!
+        OpenAPI().info(
+            Info()
+                .description("Random Coffee REST API for web application")
+                .title("Random Coffee REST").version(appVersion)
+        )!!
 }
