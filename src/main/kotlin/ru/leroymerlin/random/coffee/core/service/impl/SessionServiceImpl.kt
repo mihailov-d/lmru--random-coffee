@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import ru.leroymerlin.random.coffee.core.dto.ChatState
 import ru.leroymerlin.random.coffee.core.dto.SessionDto
+import ru.leroymerlin.random.coffee.core.exception.SessionNotFoundException
 import ru.leroymerlin.random.coffee.core.model.Session
 import ru.leroymerlin.random.coffee.core.repository.SessionRepository
 import ru.leroymerlin.random.coffee.core.service.SessionService
@@ -13,7 +14,7 @@ import java.time.LocalDateTime
 
 @Service
 class SessionServiceImpl(
-    private val sessionRepository: SessionRepository
+        private val sessionRepository: SessionRepository
 ) : SessionService {
 
     companion object {
@@ -29,30 +30,31 @@ class SessionServiceImpl(
         }
     }
 
-    override fun saveState(userSessionState: SessionDto) {
+    override fun saveState(userSessionState: SessionDto): SessionDto {
         val updatedSession = dtoTo(userSessionState)
         val oldSession = try {
             sessionRepository.findOneById(userSessionState.id)
         } catch (ex: Exception) {
-            null
+            throw SessionNotFoundException(userSessionState.chatId)
         }
-        sessionRepository.save(
-            if (oldSession != null) {
-                logger.debug("Save session")
-                updatedSession.copy(createdDate = oldSession.createdDate)
-            } else {
-                logger.debug("Create session")
-                updatedSession
-            }
+        val savedSession = sessionRepository.save(
+                if (oldSession != null) {
+                    logger.debug("Save session")
+                    updatedSession.copy(createdDate = oldSession.createdDate)
+                } else {
+                    logger.debug("Create session")
+                    updatedSession
+                }
         )
+        return modelTo(savedSession)
     }
 
-    override fun getStateByChatId(chatId: ChatId): SessionDto? {
+    override fun getStateByChatId(chatId: ChatId): SessionDto {
         return try {
             modelTo(sessionRepository.findOneByChatId(chatId))
         } catch (ex: Exception) {
             logger.debug("Cannot find session by chatId")
-            null
+            throw SessionNotFoundException(chatId)
         }
     }
 
@@ -75,14 +77,14 @@ class SessionServiceImpl(
     private fun modelTo(session: Session): SessionDto {
         return with(session) {
             SessionDto(
-                id,
-                userId,
-                chatId,
-                currentChatState,
-                draftBasicUser,
-                draftMeeting,
-                draftCommunicationUser,
-                draftAboutUser
+                    id,
+                    userId,
+                    chatId,
+                    currentChatState,
+                    draftBasicUser,
+                    draftMeeting,
+                    draftCommunicationUser,
+                    draftAboutUser
             )
         }
     }
@@ -90,14 +92,14 @@ class SessionServiceImpl(
     private fun dtoTo(sessionDto: SessionDto): Session {
         return with(sessionDto) {
             Session(
-                id,
-                userId,
-                chatId,
-                currentChatState,
-                draftBasicUser,
-                draftMeeting,
-                draftCommunicationUser,
-                draftAboutUser
+                    id,
+                    userId,
+                    chatId,
+                    currentChatState,
+                    draftBasicUser,
+                    draftMeeting,
+                    draftCommunicationUser,
+                    draftAboutUser
             )
         }
     }
