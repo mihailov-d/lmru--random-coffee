@@ -3,6 +3,8 @@ package ru.leroymerlin.random.coffee.core.model
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import ru.leroymerlin.random.coffee.core.dto.ChatState
+import ru.leroymerlin.random.coffee.core.dto.LocationTypeEnum
+import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum
 import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum
 import ru.leroymerlin.random.coffee.core.dto.UserStatusEnum
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingUpdateRequest
@@ -11,6 +13,7 @@ import ru.leroymerlin.random.coffee.core.dto.request.UserBasicUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserCommunicationsUpdateRequest
 import ru.leroymerlin.random.coffee.core.util.ChatId
 import ru.leroymerlin.random.coffee.core.util.UserId
+import java.time.LocalDateTime
 import java.util.UUID
 
 
@@ -40,13 +43,14 @@ import java.util.UUID
 
 @Document data class Meeting(
     @Id val id: UUID,
-    val userId: UserId,
-    val chatId: ChatId,
-    val currentChatState: ChatState = ChatState.NONE,
-    val draftBasicUser: UserBasicUpdateRequest? = null,
-    val draftMeeting: MeetingUpdateRequest? = null,
-    val draftCommunicationUser: UserCommunicationsUpdateRequest? = null,
-    val draftAboutUser: UserAboutUpdateRequest? = null
+    val userId: UUID,
+    val createdDate: LocalDateTime,
+    val updatedDate: LocalDateTime,
+    val aim: String? = null,
+    val comment: String? = null,
+    val locationType: LocationTypeEnum? = null,
+    val location: String? = null,
+    val status: MeetingStatusEnum = MeetingStatusEnum.DRAFT
 )
 
 
