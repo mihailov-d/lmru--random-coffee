@@ -9,11 +9,15 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton
 import ru.leroymerlin.random.coffee.core.dto.ChatState
+import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum
+import ru.leroymerlin.random.coffee.core.dto.request.UserBasicUpdateRequest
+import ru.leroymerlin.random.coffee.core.dto.request.UserCommunicationsUpdateRequest
 import ru.leroymerlin.random.coffee.core.service.UserSessionStateService
 import ru.leroymerlin.random.coffee.core.util.chatId
 import ru.leroymerlin.random.coffee.core.util.keyboardRow
 import ru.leroymerlin.random.coffee.core.util.stringChatId
 import ru.leroymerlin.random.coffee.core.util.textEquals
+import java.util.UUID
 import java.util.function.Predicate
 
 @Component
@@ -58,8 +62,27 @@ class AcquaintanceAbility : AbilityExtension {
         userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_PHONE)
     }, textEquals("Телефон"))
 
+    fun typeInputNameReply(): Reply = Reply.of({ b, update ->
+        val message = SendMessage()
+        message.replyMarkup = ReplyKeyboardRemove(true)
+        message.chatId = update.stringChatId()
+        message.text = "Введите ваше имя для анкеты"
+        b.execute(message)
+
+        userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_NAME)
+    }, textEquals("Ввести имя"))
+
+    fun typeInputSurnameReply(): Reply = Reply.of({ b, update ->
+        val message = SendMessage()
+        message.replyMarkup = ReplyKeyboardRemove(true)
+        message.chatId = update.stringChatId()
+        message.text = "Введите вашу фамилию для анкеты"
+        b.execute(message)
+
+        userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_SURNAME)
+    }, textEquals("Ввести фамилию"))
+
     fun typeTelegramReply(): Reply = Reply.of({ b, update ->
-        userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.NONE)
         // TODO save telegram id as contact type
         val userName = update.message.chat.userName
 
@@ -70,6 +93,24 @@ class AcquaintanceAbility : AbilityExtension {
 //        message.enableMarkdown(true)
         message.text = "Спасибо, мы сохранили ваш telegram id как контактный: `@$userName`"
         b.execute(message)
+
+        userSessionStateService.getStateByChatId(update.chatId())?.apply {
+            val updatedSession = this.copy(draftCommunicationUser = this.draftCommunicationUser?.copy(telegram = userName, preferCommunications = setOf(UserPreferCommunicationEnum.TELEGRAM))
+                    ?: UserCommunicationsUpdateRequest(UUID.randomUUID(), null, null, userName, setOf(UserPreferCommunicationEnum.TELEGRAM)))
+            userSessionStateService.saveState(updatedSession)
+        }
+        userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.NONE)
+
+        val message2 = SendMessage()
+        val replyKeyboardMarkup = ReplyKeyboardMarkup()
+        replyKeyboardMarkup.keyboard = listOf(
+                keyboardRow(KeyboardButton.builder().text("Ввести имя").build()),
+                keyboardRow(KeyboardButton.builder().text("Ввести фамилию").build())
+        )
+        message2.replyMarkup = replyKeyboardMarkup
+        message2.chatId = update.stringChatId()
+        message2.text = "Введите информацию о себе"
+        b.execute(message2)
     }, textEquals("Телеграм"))
 
     fun commonTextAbility(): Reply = Reply.of({ b, update ->
@@ -80,14 +121,65 @@ class AcquaintanceAbility : AbilityExtension {
                 val userEmail = update.message.text.trim()
                 // TODO email validation
                 b.silent().sendMd("Спасибо, мы сохранили твой email: `$userEmail`", chatId)
-                // TODO save user email
+                userSessionStateService.getStateByChatId(update.chatId())?.apply {
+                    val updatedSession = this.copy(draftCommunicationUser = this.draftCommunicationUser?.copy(email = userEmail, preferCommunications = setOf(UserPreferCommunicationEnum.EMAIL))
+                            ?: UserCommunicationsUpdateRequest(UUID.randomUUID(), null, userEmail, null, setOf(UserPreferCommunicationEnum.EMAIL)))
+                    userSessionStateService.saveState(updatedSession)
+                }
                 userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
             }
             ChatState.INPUT_PHONE -> {
                 val userPhone = update.message.text.trim()
                 // TODO phone validation
                 b.silent().sendMd("Спасибо, мы сохранили твой телефон: `$userPhone`", chatId)
-                // TODO save user phone
+                userSessionStateService.getStateByChatId(update.chatId())?.apply {
+                    val updatedSession = this.copy(draftCommunicationUser = this.draftCommunicationUser?.copy(phone = userPhone, preferCommunications = setOf(UserPreferCommunicationEnum.PHONE))
+                            ?: UserCommunicationsUpdateRequest(UUID.randomUUID(), phone = userPhone, null, null, setOf(UserPreferCommunicationEnum.PHONE)))
+                    userSessionStateService.saveState(updatedSession)
+                }
+
+                userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
+            }
+            ChatState.INPUT_NAME -> {
+                val name = update.message.text.trim()
+                // TODO name validation
+
+                userSessionStateService.getStateByChatId(update.chatId())?.apply {
+                    val updatedSession = this.copy(draftBasicUser = this.draftBasicUser?.copy(name = name)
+                            ?: UserBasicUpdateRequest(UUID.randomUUID(), name, null))
+                    userSessionStateService.saveState(updatedSession)
+                }
+
+                val message2 = SendMessage()
+                val replyKeyboardMarkup = ReplyKeyboardMarkup()
+                replyKeyboardMarkup.keyboard = listOf(
+                        keyboardRow(KeyboardButton.builder().text("Ввести фамилию").build())
+                )
+                message2.replyMarkup = replyKeyboardMarkup
+                message2.chatId = update.stringChatId()
+                message2.text = "Ваше имя для анкеты: $name"
+                b.execute(message2)
+                userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
+            }
+            ChatState.INPUT_SURNAME -> {
+                val surname = update.message.text.trim()
+                // TODO surname validation
+
+                userSessionStateService.getStateByChatId(update.chatId())?.apply {
+                    val updatedSession = this.copy(draftBasicUser = this.draftBasicUser?.copy(surname = surname)
+                            ?: UserBasicUpdateRequest(UUID.randomUUID(), null, surname))
+                    userSessionStateService.saveState(updatedSession)
+                }
+
+                val message2 = SendMessage()
+                val replyKeyboardMarkup = ReplyKeyboardMarkup()
+                replyKeyboardMarkup.keyboard = listOf(
+                        keyboardRow(KeyboardButton.builder().text("Ввести имя").build())
+                )
+                message2.replyMarkup = replyKeyboardMarkup
+                message2.chatId = update.stringChatId()
+                message2.text = "Ваша фамилия для анкеты: $surname"
+                b.execute(message2)
                 userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
             }
             else -> {
@@ -97,7 +189,10 @@ class AcquaintanceAbility : AbilityExtension {
         }
 
     }, Predicate { update ->
-        setOf("Почта", "Телефон").contains(update.message.text).not() &&
-                userSessionStateService.getStateByChatId(update.chatId())?.let { setOf(ChatState.INPUT_EMAIL, ChatState.INPUT_PHONE).contains(it.currentChatState) } ?: false
+        setOf("Почта", "Телефон", "Ввести имя", "Ввести фамилию").contains(update.message.text).not() &&
+                userSessionStateService.getStateByChatId(update.chatId())?.let {
+                    setOf(ChatState.INPUT_EMAIL, ChatState.INPUT_PHONE,
+                            ChatState.INPUT_NAME, ChatState.INPUT_SURNAME).contains(it.currentChatState)
+                } ?: false
     })
 }

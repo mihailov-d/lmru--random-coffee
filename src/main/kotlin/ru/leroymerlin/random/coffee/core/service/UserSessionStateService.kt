@@ -27,7 +27,9 @@ class UserSessionStateService : SessionService {
 
     override fun updateChatStateByChatId(chatId: ChatId, chatState: ChatState) {
         getStateByChatId(chatId)?.apply {
-            saveState(this.copy(currentChatState = chatState))
+            val updatedState = this.copy(currentChatState = chatState)
+            saveState(updatedState)
+            println("Current state - $updatedState")
         }
     }
 
