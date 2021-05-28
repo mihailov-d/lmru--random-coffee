@@ -120,8 +120,19 @@ class AcquaintanceAbility : AbilityExtension {
         b.execute(message)
 
         val userSession = sessionService.getStateByChatId(update.chatId()).let {
-            val updatedSession = it.copy(draftCommunicationUser = it.draftCommunicationUser?.copy(telegram = userName, preferCommunications = setOf(UserPreferCommunicationEnum.TELEGRAM))
-                    ?: UserCommunicationsUpdateRequest(UUID.randomUUID(), null, null, userName, setOf(UserPreferCommunicationEnum.TELEGRAM)))
+            val updatedSession = it.copy(
+                    draftCommunicationUser = it.draftCommunicationUser?.copy(
+                            telegram = userName,
+                            preferCommunications = setOf(UserPreferCommunicationEnum.TELEGRAM)
+                    )
+                            ?: UserCommunicationsUpdateRequest(
+                                    UUID.randomUUID(),
+                                    null,
+                                    null,
+                                    userName,
+                                    setOf(UserPreferCommunicationEnum.TELEGRAM)
+                            )
+            )
             sessionService.saveState(updatedSession)
         }
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.NONE)
@@ -148,8 +159,19 @@ class AcquaintanceAbility : AbilityExtension {
                 // TODO email validation
                 b.silent().sendMd("Спасибо, мы сохранили твой email: `$userEmail`", chatId)
                 val userSession = sessionService.getStateByChatId(chatId).let {
-                    val updatedSession = it.copy(draftCommunicationUser = it.draftCommunicationUser?.copy(email = userEmail, preferCommunications = setOf(UserPreferCommunicationEnum.EMAIL))
-                            ?: UserCommunicationsUpdateRequest(UUID.randomUUID(), null, userEmail, null, setOf(UserPreferCommunicationEnum.EMAIL)))
+                    val updatedSession = it.copy(
+                            draftCommunicationUser = it.draftCommunicationUser?.copy(
+                                    email = userEmail,
+                                    preferCommunications = setOf(UserPreferCommunicationEnum.EMAIL)
+                            )
+                                    ?: UserCommunicationsUpdateRequest(
+                                            UUID.randomUUID(),
+                                            null,
+                                            userEmail,
+                                            null,
+                                            setOf(UserPreferCommunicationEnum.EMAIL)
+                                    )
+                    )
                     sessionService.saveState(updatedSession)
                 }
                 sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
@@ -160,8 +182,19 @@ class AcquaintanceAbility : AbilityExtension {
                 // TODO phone validation
                 b.silent().sendMd("Спасибо, мы сохранили твой телефон: `$userPhone`", chatId)
                 val userSession = sessionService.getStateByChatId(chatId).let {
-                    val updatedSession = it.copy(draftCommunicationUser = it.draftCommunicationUser?.copy(phone = userPhone, preferCommunications = setOf(UserPreferCommunicationEnum.PHONE))
-                            ?: UserCommunicationsUpdateRequest(UUID.randomUUID(), phone = userPhone, null, null, setOf(UserPreferCommunicationEnum.PHONE)))
+                    val updatedSession = it.copy(
+                            draftCommunicationUser = it.draftCommunicationUser?.copy(
+                                    phone = userPhone,
+                                    preferCommunications = setOf(UserPreferCommunicationEnum.PHONE)
+                            )
+                                    ?: UserCommunicationsUpdateRequest(
+                                            UUID.randomUUID(),
+                                            phone = userPhone,
+                                            null,
+                                            null,
+                                            setOf(UserPreferCommunicationEnum.PHONE)
+                                    )
+                    )
                     sessionService.saveState(updatedSession)
                 }
 
@@ -173,8 +206,10 @@ class AcquaintanceAbility : AbilityExtension {
                 // TODO name validation
 
                 val userSession = sessionService.getStateByChatId(chatId).let {
-                    val updatedSession = it.copy(draftBasicUser = it.draftBasicUser?.copy(name = name)
-                            ?: UserBasicUpdateRequest(UUID.randomUUID(), name, null))
+                    val updatedSession = it.copy(
+                            draftBasicUser = it.draftBasicUser?.copy(name = name)
+                                    ?: UserBasicUpdateRequest(UUID.randomUUID(), name, null)
+                    )
                     sessionService.saveState(updatedSession)
                 }
 
@@ -203,8 +238,10 @@ class AcquaintanceAbility : AbilityExtension {
                 // TODO surname validation
 
                 val userSession = sessionService.getStateByChatId(chatId).let {
-                    val updatedSession = it.copy(draftBasicUser = it.draftBasicUser?.copy(surname = surname)
-                            ?: UserBasicUpdateRequest(UUID.randomUUID(), null, surname))
+                    val updatedSession = it.copy(
+                            draftBasicUser = it.draftBasicUser?.copy(surname = surname)
+                                    ?: UserBasicUpdateRequest(UUID.randomUUID(), null, surname)
+                    )
                     sessionService.saveState(updatedSession)
                 }
 
@@ -233,8 +270,10 @@ class AcquaintanceAbility : AbilityExtension {
                 val aboutMe = update.message.text.trim()
 
                 val userSession = sessionService.getStateByChatId(chatId).let {
-                    val updatedSession = it.copy(draftAboutUser = it.draftAboutUser?.copy(aboutMe = aboutMe)
-                            ?: UserAboutUpdateRequest(UUID.randomUUID(), aboutMe, null))
+                    val updatedSession = it.copy(
+                            draftAboutUser = it.draftAboutUser?.copy(aboutMe = aboutMe)
+                                    ?: UserAboutUpdateRequest(UUID.randomUUID(), aboutMe, null)
+                    )
                     sessionService.saveState(updatedSession)
                 }
 
@@ -262,8 +301,10 @@ class AcquaintanceAbility : AbilityExtension {
                 val aboutJob = update.message.text.trim()
 
                 val userSession = sessionService.getStateByChatId(chatId).let {
-                    val updatedSession = it.copy(draftAboutUser = it.draftAboutUser?.copy(aboutJob = aboutJob)
-                            ?: UserAboutUpdateRequest(UUID.randomUUID(), null, aboutJob))
+                    val updatedSession = it.copy(
+                            draftAboutUser = it.draftAboutUser?.copy(aboutJob = aboutJob)
+                                    ?: UserAboutUpdateRequest(UUID.randomUUID(), null, aboutJob)
+                    )
                     sessionService.saveState(updatedSession)
                 }
 
@@ -294,7 +335,9 @@ class AcquaintanceAbility : AbilityExtension {
         }
 
     }, Predicate { update ->
-        setOf(CommandList.ACQUAINTANCE_INPUT_EMAIL.command, CommandList.ACQUAINTANCE_INPUT_PHONE.command, CommandList.ACQUAINTANCE_INPUT_NAME.command, CommandList.ACQUAINTANCE_INPUT_SURNAME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_ME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_WORK.command).contains(update.message.text).not() &&
+        setOf(
+                CommandList.ACQUAINTANCE_INPUT_EMAIL.command, CommandList.ACQUAINTANCE_INPUT_PHONE.command, CommandList.ACQUAINTANCE_INPUT_NAME.command, CommandList.ACQUAINTANCE_INPUT_SURNAME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_ME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_WORK.command
+        ).contains(update.message.text).not() &&
                 sessionService.getStateByChatId(update.chatId()).let {
                     setOf(ChatState.INPUT_EMAIL, ChatState.INPUT_PHONE,
                             ChatState.INPUT_NAME, ChatState.INPUT_SURNAME,
