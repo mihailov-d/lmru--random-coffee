@@ -11,9 +11,9 @@ interface SessionService {
     // Save session
     fun getState(userId: UserId): SessionDto?
 
-    fun saveState(userSessionState: SessionDto)
+    fun saveState(userSessionState: SessionDto): SessionDto
 
-    fun getStateByChatId(chatId: ChatId): SessionDto?
+    fun getStateByChatId(chatId: ChatId): SessionDto
 
     fun updateChatStateByChatId(chatId: ChatId, chatState: ChatState)
 
