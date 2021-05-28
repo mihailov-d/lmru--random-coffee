@@ -19,14 +19,17 @@ import java.util.UUID
 
 @Document data class User(
     @Id val id: UUID,
-    val telegramUserId: UserId,
+    val telegramUserId: UserId? = 0L,
     val name: String? = null,
     val surname: String? = null,
     val preferCommunications: Set<UserPreferCommunicationEnum>? = null,
     val email: String? = null,
     val phone: String? = null,
+    val telegramUsername: String? = null,
     val aboutMe: String? = null,
     val aboutJob: String? = null,
+    val createdDate: LocalDateTime = LocalDateTime.now(),
+    val editedDate:  LocalDateTime = LocalDateTime.now(),
     val status: UserStatusEnum = UserStatusEnum.DRAFT
 )
 
@@ -47,8 +50,8 @@ import java.util.UUID
 @Document data class Meeting(
     @Id val id: UUID,
     val userId: UUID,
-    val createdDate: LocalDateTime,
-    val updatedDate: LocalDateTime,
+    val createdDate: LocalDateTime = LocalDateTime.now(),
+    val editedDate: LocalDateTime = LocalDateTime.now(),
     val aim: String? = null,
     val comment: String? = null,
     val locationType: LocationTypeEnum? = null,

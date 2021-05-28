@@ -122,17 +122,16 @@ class AcquaintanceAbility : AbilityExtension {
         val userSession = sessionService.getStateByChatId(update.chatId()).let {
             val updatedSession = it.copy(
                     draftCommunicationUser = it.draftCommunicationUser?.copy(
-                            telegram = userName,
+                            telegram = 0L,
                             preferCommunications = setOf(UserPreferCommunicationEnum.TELEGRAM)
                     )
                             ?: UserCommunicationsUpdateRequest(
                                     UUID.randomUUID(),
                                     null,
                                     null,
-                                    userName,
+                                    0L,
                                     setOf(UserPreferCommunicationEnum.TELEGRAM)
-                            )
-            )
+                            ))
             sessionService.saveState(updatedSession)
         }
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.NONE)
