@@ -28,3 +28,5 @@ tmp
 build
 bootstrap*local*.yaml
 *.iml
+.env.dev
+.env.prod

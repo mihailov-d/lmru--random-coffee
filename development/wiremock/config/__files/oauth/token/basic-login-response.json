@@ -1,7 +1,0 @@
-{
-    "access_token": "192f3ad8-c2a0-4c5a-9b15-cb7ca9d70194",
-    "token_type": "bearer",
-    "refresh_token": "9d333bfd-2737-420c-9b52-f1b38779c2a1",
-    "expires_in": 7199,
-    "scope": "LMRU.MOVE.CUSTOMER LMRU.MOVE.SALES LMRU.MOVE.LOYALTY RULM-WAC move SCOPE-CUSTOMER"
-}

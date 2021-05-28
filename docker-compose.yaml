@@ -18,15 +18,6 @@ services:
       - 37017:27017
     volumes:
     - cv-m-data:/data/db
-  wiremock:
-    image: docker-remote-docker-io.art.lmru.tech/rodolpheche/wiremock:2.27.2
-    volumes:
-      - ./development/wiremock/config:/home/wiremock
-    #    For debug use this command
-    #    command: --jetty-acceptor-threads 2 --print-all-network-traffic --disable-gzip --disable-banner --port 8086 --local-response-templating
-    command: --jetty-acceptor-threads 2 --disable-banner true --port 8087 --local-response-templating
-    ports:
-      - 8087:8087
   jaeger-collector:
     image: docker-remote-docker-io.art.lmru.tech/jaegertracing/jaeger-collector
     command: [ "--cassandra.keyspace=jaeger_v1_dc1", "--cassandra.servers=cassandra", "--collector.zipkin.host-port=:9411" ]
