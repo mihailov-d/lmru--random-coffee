@@ -17,6 +17,8 @@ import ru.leroymerlin.random.coffee.core.util.chatId
 import ru.leroymerlin.random.coffee.core.util.keyboardRow
 import ru.leroymerlin.random.coffee.core.util.stringChatId
 import ru.leroymerlin.random.coffee.core.util.textEquals
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.UUID
 import java.util.function.Predicate
 
@@ -60,27 +62,72 @@ class MeetingAbility : AbilityExtension {
         val message2 = SendMessage()
         val replyKeyboardMarkup = ReplyKeyboardMarkup()
 
-        val currentState = sessionService.getStateByChatId(chatId)
-        if (currentState.isMeetingFill()) {
+        if (userSession.isMeetingFill()) {
             // TODO next step
             replyKeyboardMarkup.keyboard = listOf(
-                    keyboardRow(KeyboardButton.builder().text("сегодня").build()),
-                    keyboardRow(KeyboardButton.builder().text("завтра").build())
+                    keyboardRow(KeyboardButton.builder().text("Опубликовать анкету для встречи").build())
+//                    keyboardRow(KeyboardButton.builder().text("завтра").build())
             )
-            userService.update(userSession.draftBasicUser!!)
+            // TODO save draft meeting
+//            userService.update(userSession.draftMeeting!!)
+            message2.text = "Спасибо, публикуем анкету для встречи?"
+            sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
         } else {
             // TODO fill dates
             replyKeyboardMarkup.keyboard = listOf(
-                    keyboardRow(KeyboardButton.builder().text("сегодня").build()),
-                    keyboardRow(KeyboardButton.builder().text("завтра").build())
+                    keyboardRow(KeyboardButton.builder().text("Сегодня").build()),
+                    keyboardRow(KeyboardButton.builder().text("Завтра").build()),
+                    keyboardRow(KeyboardButton.builder().text("Послезавтра").build())
             )
+            message2.text = "Веберите дату встречи"
+            sessionService.updateChatStateByChatId(chatId, ChatState.INPUT_MEETING_DATE)
         }
         message2.replyMarkup = replyKeyboardMarkup
         message2.chatId = update.stringChatId()
-        message2.text = "Веберите дату встречи"
         b.execute(message2)
-        sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
     }, textEquals("О работе").or(textEquals("Давай отдахнем, не о работе")))
+
+    fun meetingDateReply(): Reply = Reply.of({ d, update ->
+        val text = update.message.text
+        val chatId = update.chatId()
+
+        val moscowZoneId = ZoneId.of("Europe/Moscow")
+        val preferDate = when (text) {
+            "Сегодня" -> LocalDate.now(moscowZoneId)
+            "Завтра" -> LocalDate.now(moscowZoneId).plusDays(1)
+            "Послезавтра" -> LocalDate.now(moscowZoneId).plusDays(2)
+            else -> throw IllegalStateException("unknown meeting date: $text")
+        }
+
+        val userSession = sessionService.getStateByChatId(chatId).let {
+            val updatedSession = it.copy(draftMeeting = it.draftMeeting?.copy(preferDate = preferDate)
+                    ?: MeetingUpdateRequest(UUID.randomUUID(), null, null, null, preferDate, null, ""))
+            sessionService.saveState(updatedSession)
+        }
+        sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
+
+        val message = SendMessage()
+        message.chatId = update.stringChatId()
+        val replyKeyboardMarkup = ReplyKeyboardMarkup()
+        if (userSession.isMeetingFill()) {
+            replyKeyboardMarkup.keyboard = listOf(
+                    keyboardRow(KeyboardButton.builder().text("Опубликовать анкету для встречи").build())
+            )
+            message.replyMarkup = replyKeyboardMarkup
+            message.text = "Спасибо, публикуем анкету для встречи?"
+            sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
+        } else {
+            replyKeyboardMarkup.keyboard = listOf(
+                    keyboardRow(KeyboardButton.builder().text("О работе").build()),
+                    keyboardRow(KeyboardButton.builder().text("Давай отдахнем, не о работе").build())
+            )
+            message.replyMarkup = replyKeyboardMarkup
+            message.chatId = update.stringChatId()
+            message.text = "О чем хотите поговорить?"
+            sessionService.updateChatStateByChatId(chatId, ChatState.INPUT_MEETING_TOPIC_TYPE)
+        }
+        d.execute(message)
+    }, Predicate { update -> sessionService.getChatStateByChatId(update.chatId()) == ChatState.INPUT_MEETING_DATE })
 
     fun someTextReply(): Reply = Reply.of({ b, update ->
         val chatId = update.chatId()

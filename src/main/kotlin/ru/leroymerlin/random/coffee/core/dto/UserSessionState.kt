@@ -8,5 +8,6 @@ enum class ChatState {
     INPUT_ABOUT_ME,
     INPUT_ABOUT_JOB,
     INPUT_MEETING_TOPIC_TYPE,
+    INPUT_MEETING_DATE,
     NONE
 }

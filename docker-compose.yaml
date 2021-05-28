@@ -1,6 +1,7 @@
-version: '3.8'
+version: '3'
 services:
   mongo:
+    container_name: random-coffe-lmru
     image: docker-remote-docker-io.art.lmru.tech/mongo:4.4
     restart: always
     environment:
