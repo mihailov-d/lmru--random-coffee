@@ -8,15 +8,15 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class MetricsConfig {
+open class MetricsConfig {
 
     @Bean
-    fun timedAspect(registry: MeterRegistry?): TimedAspect? {
+    open fun timedAspect(registry: MeterRegistry?): TimedAspect? {
         return TimedAspect(registry!!)
     }
 
     @Bean
-    fun filters(registry: MeterRegistry): Config =
+    open fun filters(registry: MeterRegistry): Config =
         registry.config()
             .meterFilter(
                 denyUnless {

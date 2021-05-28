@@ -113,8 +113,3 @@ logbook:
       - access_token
       - password
       - token
-
-
-telegram-bot:
-  username: $TELEGRAM_USERNAME
-  token: $TELEGRAM_TOKEN

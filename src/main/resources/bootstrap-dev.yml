@@ -4,6 +4,4 @@ spring:
       enabled: false
   data:
     mongodb:
-      host: mongo
-      port: 27017
-      database: cvdb
+      uri: mongodb://root:example-root@localhost:37017/cvdb?authSource=admin

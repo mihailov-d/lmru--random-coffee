@@ -11,45 +11,45 @@ import org.telegram.telegrambots.meta.TelegramBotsApi
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
 
 
-@Configuration
-class TelegramBotConfiguration {
-
-    @Bean
-    fun telegramBot(@Value("\${telegram-bot.username}") botUsername: String,
-                    @Value("\${telegram-bot.token}") botToken: String,
-                    abilities: List<AbilityExtension>): TelegramBotsApi {
-        val tg = TelegramBotsApi(DefaultBotSession::class.java)
-        val telegramLongPollingBot = RandomCoffeeBot(botUsername, botToken, abilities)
-        tg.registerBot(telegramLongPollingBot)
-        return tg
-    }
-}
-
-class RandomCoffeeAbilityToggle : AbilityToggle {
-    override fun isOff(ab: Ability?): Boolean {
-        return true
-    }
-
-    override fun processAbility(ab: Ability?): Ability {
-        return ab!!
-    }
-}
-
-class RandomCoffeeBot(private val botUsername: String, private val botToken: String, private val abilities: List<AbilityExtension>) :
-        AbilityBot(botToken, botUsername, RandomCoffeeAbilityToggle()) {
-    init {
-        addExtensions(abilities)
-    }
-
-    override fun getBotToken(): String {
-        return botToken
-    }
-
-    override fun creatorId(): Long {
-        return 727579598
-    }
-
-    override fun getBotUsername(): String {
-        return botUsername
-    }
-}
+//@Configuration
+//class TelegramBotConfiguration {
+//
+//    @Bean
+//    fun telegramBot(@Value("\${telegram-bot.username}") botUsername: String,
+//                    @Value("\${telegram-bot.token}") botToken: String,
+//                    abilities: List<AbilityExtension>): TelegramBotsApi {
+//        val tg = TelegramBotsApi(DefaultBotSession::class.java)
+//        val telegramLongPollingBot = RandomCoffeeBot(botUsername, botToken, abilities)
+//        tg.registerBot(telegramLongPollingBot)
+//        return tg
+//    }
+//}
+//
+//class RandomCoffeeAbilityToggle : AbilityToggle {
+//    override fun isOff(ab: Ability?): Boolean {
+//        return true
+//    }
+//
+//    override fun processAbility(ab: Ability?): Ability {
+//        return ab!!
+//    }
+//}
+//
+//class RandomCoffeeBot(private val botUsername: String, private val botToken: String, private val abilities: List<AbilityExtension>) :
+//        AbilityBot(botToken, botUsername, RandomCoffeeAbilityToggle()) {
+//    init {
+//        addExtensions(abilities)
+//    }
+//
+//    override fun getBotToken(): String {
+//        return botToken
+//    }
+//
+//    override fun creatorId(): Long {
+//        return 727579598
+//    }
+//
+//    override fun getBotUsername(): String {
+//        return botUsername
+//    }
+//}
