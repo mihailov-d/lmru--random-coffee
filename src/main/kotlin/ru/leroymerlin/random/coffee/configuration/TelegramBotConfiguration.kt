@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.telegram.abilitybots.api.bot.AbilityBot
+import org.telegram.abilitybots.api.objects.Ability
+import org.telegram.abilitybots.api.toggle.AbilityToggle
 import org.telegram.abilitybots.api.util.AbilityExtension
 import org.telegram.telegrambots.meta.TelegramBotsApi
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
@@ -23,8 +25,18 @@ class TelegramBotConfiguration {
     }
 }
 
+class RandomCoffeeAbilityToggle : AbilityToggle {
+    override fun isOff(ab: Ability?): Boolean {
+        return true
+    }
 
-class RandomCoffeeBot(private val botUsername: String, private val botToken: String, private val abilities: List<AbilityExtension>) : AbilityBot(botToken, botUsername) {
+    override fun processAbility(ab: Ability?): Ability {
+        return ab!!
+    }
+}
+
+class RandomCoffeeBot(private val botUsername: String, private val botToken: String, private val abilities: List<AbilityExtension>) :
+        AbilityBot(botToken, botUsername, RandomCoffeeAbilityToggle()) {
     init {
         addExtensions(abilities)
     }
