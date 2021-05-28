@@ -18,9 +18,11 @@ enum class CommandList(val command: String) {
 
     MATCH_MEETING_START("Опубликовать анкету для встречи");
 
-    init {
-        if (values().toSet().size != values().size) {
-            throw IllegalStateException("Not uniq commands. Check 'CommandList'")
+    companion object {
+        init {
+            if (values().toSet().size != values().size) {
+                throw IllegalStateException("Not uniq commands. Check 'CommandList'")
+            }
         }
     }
 }
