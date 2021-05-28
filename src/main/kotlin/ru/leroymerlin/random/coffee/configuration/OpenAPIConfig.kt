@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class OpenAPIConfig {
+open class OpenAPIConfig {
 
-    @Bean
-    fun customOpenAPI(@Value("\${brick.version}") appVersion: String? = null) =
+        @Bean
+    open fun customOpenAPI(@Value("\${brick.version}") appVersion: String? = null) =
         OpenAPI().info(
             Info()
                 .description("Random Coffee REST API for web application")

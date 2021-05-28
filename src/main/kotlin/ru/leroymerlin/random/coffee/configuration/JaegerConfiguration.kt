@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Configuration
 import ru.leroymerlin.random.coffee.jaeger.MDCScopeManagerExt
 
 @Configuration
-class JaegerConfiguration {
+open class JaegerConfiguration {
 
     @Bean
-    fun mdcBuilderCustomizer(): TracerBuilderCustomizer? {
+    open fun mdcBuilderCustomizer(): TracerBuilderCustomizer? {
         return TracerBuilderCustomizer { builder: Builder ->
             builder.withScopeManager(
                 MDCScopeManagerExt.Builder().build()
