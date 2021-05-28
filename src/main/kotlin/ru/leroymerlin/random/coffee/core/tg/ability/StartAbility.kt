@@ -43,7 +43,7 @@ class StartAbility : AbilityExtension {
                     message.chatId = ctx.chatId().toString()
                     message.text = "Давай знакомиться"
                     ctx.bot().execute(message)
-                    val user = userService.create(UserCreateRequest(
+                    val user = userService.getByTelegramUserId(ctx.user().id) ?: userService.create(UserCreateRequest(
                             ctx.user().id, ctx.user().userName
                     ))
                     val currentSession = sessionService.getStateByChatId(ctx.chatId())

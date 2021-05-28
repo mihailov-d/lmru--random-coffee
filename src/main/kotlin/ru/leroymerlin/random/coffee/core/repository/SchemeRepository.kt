@@ -15,6 +15,7 @@ import java.util.UUID
 interface UserRepository : MongoRepository<User, String> {
     fun findOneById(id: UUID): User
     fun deleteById(id: UUID)
+    fun findByTelegramUserId(telegramUserId: TgUserId): User
 }
 
 @Repository

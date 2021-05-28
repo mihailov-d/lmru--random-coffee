@@ -5,11 +5,14 @@ import ru.leroymerlin.random.coffee.core.dto.request.UserBasicUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserCommunicationsUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserCreateRequest
 import ru.leroymerlin.random.coffee.core.model.User
+import ru.leroymerlin.random.coffee.core.util.TgUserId
 import java.util.UUID
 
 interface UserService {
     // Create user
     fun create(createReq: UserCreateRequest): User
+
+    fun getByTelegramUserId(telegramUserId: TgUserId): User?
 
     // Update user
     fun update(updateReq: UserBasicUpdateRequest): User

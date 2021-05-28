@@ -1,6 +1,6 @@
 package ru.leroymerlin.random.coffee.core.service.impl
 
-import org.springframework.beans.factory.annotation.Autowired
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import ru.leroymerlin.random.coffee.core.dto.request.UserAboutUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserBasicUpdateRequest
@@ -9,19 +9,32 @@ import ru.leroymerlin.random.coffee.core.dto.request.UserCreateRequest
 import ru.leroymerlin.random.coffee.core.model.User
 import ru.leroymerlin.random.coffee.core.repository.UserRepository
 import ru.leroymerlin.random.coffee.core.service.UserService
+import ru.leroymerlin.random.coffee.core.util.TgUserId
 import java.util.UUID
 
 @Service
-class UserServiceImpl : UserService {
+class UserServiceImpl(
+    private val userRepository: UserRepository
+) : UserService {
 
-    @Autowired
-    internal lateinit var userRepository: UserRepository
+    companion object {
+        val log = LoggerFactory.getLogger(this::class.java)
+    }
 
     override fun create(createReq: UserCreateRequest): User {
         val user = User(UUID.randomUUID(),
                 createReq.telegramUserId)
 
         return userRepository.save(user)
+    }
+
+    override fun getByTelegramUserId(telegramUserId: TgUserId): User? {
+        return try {
+            userRepository.findByTelegramUserId(telegramUserId)
+        } catch (ex: Exception) {
+            log.debug("Cannot find user by tgUserId $telegramUserId")
+            null
+        }
     }
 
     override fun update(updateReq: UserBasicUpdateRequest): User {
