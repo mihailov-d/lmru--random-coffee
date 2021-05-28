@@ -1,14 +1,5 @@
 version: '3.8'
 services:
-  random-coffee:
-    image: docker-local-cr.art.lmru.tech/random-coffee:$IMAGE_VERSION
-    environment:
-      PORT: 8080
-      SPRING_PROFILES_ACTIVE: test
-      TELEGRAM_USERNAME: $TELEGRAM_USERNAME
-      TELEGRAM_TOKEN: $TELEGRAM_TOKEN
-    ports:
-    - 8080
   mongo:
     image: docker-remote-docker-io.art.lmru.tech/mongo:4.4
     restart: always
@@ -35,7 +26,6 @@ services:
     depends_on:
       - cassandra
       - cassandra-schema
-
   jaeger-query:
     image: docker-remote-docker-io.art.lmru.tech/jaegertracing/jaeger-query
     command: [ "--cassandra.keyspace=jaeger_v1_dc1", "--cassandra.servers=cassandra" ]
