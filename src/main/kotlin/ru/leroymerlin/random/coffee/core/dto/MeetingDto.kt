@@ -1,7 +1,6 @@
 package ru.leroymerlin.random.coffee.core.dto
 
 import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum.DRAFT
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -10,7 +9,6 @@ data class MeetingDto(
     val userId: UUID,
     val createdDate: LocalDateTime,
     val updatedDate: LocalDateTime,
-    val preferDate: LocalDate? = null,
     val aim: String? = null,
     val comment: String? = null,
     val locationType: LocationTypeEnum? = null,
