@@ -2,3 +2,8 @@ spring:
   cloud:
     vault:
       enabled: false
+  data:
+    mongodb:
+      host: mongo
+      port: 27017
+      database: cvdb

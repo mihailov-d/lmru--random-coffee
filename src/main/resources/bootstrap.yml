@@ -16,30 +16,10 @@ spring:
     name: @project.name@
   cloud:
     vault:
-      authentication: approle
-      namespace: ${APP_VAULT_NAMESPACE}
-      port: ${APP_VAULT_SERVER_PORT}
-      host: ${APP_VAULT_SERVER_HOST}
-      scheme: ${APP_VAULT_SERVER_PROTOCOL}
-      fail-fast: true
-      app-role:
-        secret-id: ${APP_SECRET_ID}
-        role-id: ${APP_ROLE_ID}
-        role: ${APP_ROLE}
-      kv:
-        profile-separator: "/"
-        backend: ${brick.name}
-        application-name: ${spring.application.name}
-      config:
-        lifecycle:
-          min-renewal: PT30S
-      enabled: true
+      enabled: false
   jackson:
     deserialization:
       read-unknown-enum-values-using-default-value: true
-  #  data:
-  #    mongodb:
-  #      uri: <connection url>
   session:
     store-type: none
 #  zipkin:

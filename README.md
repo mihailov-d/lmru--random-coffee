@@ -19,6 +19,18 @@ The following items should be installed in your system:
 * maven 3.6 – IDE plugin or [standalone](https://spring.io/guides/gs/maven/)
 * docker for local run
 
+## How to setup
+
+Create file `src/main/resources/bootstrap-localdev.yml` for local development
+
+Define
+
+```
+telegram-bot:
+  username: randomCoffeeLmruBot
+  token: 666:kjhhrkjhqejwkbjkadbhfkh
+```
+
 ## Development
 
 > Before start to developing you must to copy file '.env.example' to '.env.dev' and set your environments 
@@ -71,3 +83,7 @@ The following items should be installed in your system:
    docker push docker-local-cr.art.lmru.tech/random-coffee:stable
    docker push docker-local-cr.art.lmru.tech/random-coffee:<stable image with release version>
    ```
+
+# Links
+
+[Project roadmap in Miro](https://miro.com/app/board/o9J_lCKRDjc=/)
