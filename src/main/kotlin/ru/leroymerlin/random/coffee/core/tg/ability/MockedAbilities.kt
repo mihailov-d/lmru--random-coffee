@@ -9,8 +9,10 @@ import org.telegram.abilitybots.api.objects.Reply
 import org.telegram.abilitybots.api.util.AbilityExtension
 import org.telegram.abilitybots.api.util.AbilityUtils
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
-import java.util.function.Predicate
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton
+import ru.leroymerlin.random.coffee.core.util.keyboardRow
+import ru.leroymerlin.random.coffee.core.util.textEquals
 
 @Component
 class MockedAbilities : AbilityExtension {
@@ -18,14 +20,18 @@ class MockedAbilities : AbilityExtension {
     fun fillCardReply(): Reply {
         return Reply.of({ b, update ->
             val message = SendMessage()
-            val removeKeyboard = ReplyKeyboardRemove()
-            removeKeyboard.removeKeyboard = true
-            message.replyMarkup = removeKeyboard
+            val replyKeyboardMarkup = ReplyKeyboardMarkup()
+            replyKeyboardMarkup.keyboard = listOf(
+                    keyboardRow(KeyboardButton.builder().text("Почта").build()),
+                    keyboardRow(KeyboardButton.builder().text("Телефон").build()),
+                    keyboardRow(KeyboardButton.builder().text("Телеграм").build())
+            )
+            message.replyMarkup = replyKeyboardMarkup
             message.chatId = AbilityUtils.getChatId(update).toString()
-            message.text = "Got it"
+            message.text = "Выберите наиболее удобный связи с тобой"
             b.execute(message)
         },
-                Predicate { update -> update.hasMessage() && update.message.hasText() && update.message.text.contains("Заполнить карточку") })
+                textEquals("Заполнить карточку"))
     }
 
     fun createProfileAbility(): Ability {
