@@ -66,7 +66,6 @@ class MeetingAbility : AbilityExtension {
             // TODO next step
             replyKeyboardMarkup.keyboard = listOf(
                     keyboardRow(KeyboardButton.builder().text("Опубликовать анкету для встречи").build())
-//                    keyboardRow(KeyboardButton.builder().text("завтра").build())
             )
             // TODO save draft meeting
 //            userService.update(userSession.draftMeeting!!)
@@ -122,7 +121,6 @@ class MeetingAbility : AbilityExtension {
                     keyboardRow(KeyboardButton.builder().text("Давай отдахнем, не о работе").build())
             )
             message.replyMarkup = replyKeyboardMarkup
-            message.chatId = update.stringChatId()
             message.text = "О чем хотите поговорить?"
             sessionService.updateChatStateByChatId(chatId, ChatState.INPUT_MEETING_TOPIC_TYPE)
         }
@@ -131,19 +129,12 @@ class MeetingAbility : AbilityExtension {
 
     fun someTextReply(): Reply = Reply.of({ b, update ->
         val chatId = update.chatId()
-        when (sessionService.getChatStateByChatId(chatId)) {
-            ChatState.INPUT_MEETING_TOPIC_TYPE -> {
-                println("some")
-            }
-            else -> {
-                val message = SendMessage()
-                message.replyMarkup = ReplyKeyboardRemove(true)
-                message.chatId = update.stringChatId()
-                message.text = "Неизвестное состояние. Сбрасываю диалог"
-                b.execute(message)
-                sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
-            }
-        }
+        val message = SendMessage()
+        message.replyMarkup = ReplyKeyboardRemove(true)
+        message.chatId = update.stringChatId()
+        message.text = "Неизвестное состояние. Сбрасываю диалог"
+        b.execute(message)
+        sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
     }, Predicate { update ->
         false
 //        setOf("О работе", "Давай отдахнем, не о работе").contains(update.message.text).not() &&
