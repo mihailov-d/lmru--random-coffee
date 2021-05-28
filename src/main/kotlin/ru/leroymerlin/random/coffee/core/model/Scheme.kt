@@ -19,7 +19,7 @@ import java.util.UUID
 
 @Document data class User(
     @Id val id: UUID,
-    val telegramUserId: String,
+    val telegramUserId: UserId,
     val name: String? = null,
     val surname: String? = null,
     val preferCommunications: Set<UserPreferCommunicationEnum>? = null,
