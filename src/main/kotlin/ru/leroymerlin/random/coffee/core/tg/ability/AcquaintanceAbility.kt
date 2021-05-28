@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton
 import ru.leroymerlin.random.coffee.core.dto.ChatState
 import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum
+import ru.leroymerlin.random.coffee.core.dto.request.UserAboutUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserBasicUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserCommunicationsUpdateRequest
 import ru.leroymerlin.random.coffee.core.service.UserSessionStateService
@@ -82,6 +83,26 @@ class AcquaintanceAbility : AbilityExtension {
         userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_SURNAME)
     }, textEquals("Ввести фамилию"))
 
+    fun typeAboutMeReply(): Reply = Reply.of({ b, update ->
+        val message = SendMessage()
+        message.replyMarkup = ReplyKeyboardRemove(true)
+        message.chatId = update.stringChatId()
+        message.text = "Введите информацию о себе для анкеты"
+        b.execute(message)
+
+        userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_ABOUT_ME)
+    }, textEquals("Ввести информацию о себе"))
+
+    fun typeAboutJobReply(): Reply = Reply.of({ b, update ->
+        val message = SendMessage()
+        message.replyMarkup = ReplyKeyboardRemove(true)
+        message.chatId = update.stringChatId()
+        message.text = "Введите информацию о работе для анкеты"
+        b.execute(message)
+
+        userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_ABOUT_JOB)
+    }, textEquals("Ввести информацию о работе"))
+
     fun typeTelegramReply(): Reply = Reply.of({ b, update ->
         // TODO save telegram id as contact type
         val userName = update.message.chat.userName
@@ -152,9 +173,17 @@ class AcquaintanceAbility : AbilityExtension {
 
                 val message2 = SendMessage()
                 val replyKeyboardMarkup = ReplyKeyboardMarkup()
-                replyKeyboardMarkup.keyboard = listOf(
-                        keyboardRow(KeyboardButton.builder().text("Ввести фамилию").build())
-                )
+                val currentState = userSessionStateService.getStateByChatId(update.chatId())!!
+                if (currentState.isNameAndSurnameFill()) {
+                    replyKeyboardMarkup.keyboard = listOf(
+                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build()),
+                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о работе").build())
+                    )
+                } else {
+                    replyKeyboardMarkup.keyboard = listOf(
+                            keyboardRow(KeyboardButton.builder().text("Ввести фамилию").build())
+                    )
+                }
                 message2.replyMarkup = replyKeyboardMarkup
                 message2.chatId = update.stringChatId()
                 message2.text = "Ваше имя для анкеты: $name"
@@ -173,12 +202,77 @@ class AcquaintanceAbility : AbilityExtension {
 
                 val message2 = SendMessage()
                 val replyKeyboardMarkup = ReplyKeyboardMarkup()
-                replyKeyboardMarkup.keyboard = listOf(
-                        keyboardRow(KeyboardButton.builder().text("Ввести имя").build())
-                )
+
+                val currentState = userSessionStateService.getStateByChatId(update.chatId())!!
+                if (currentState.isNameAndSurnameFill()) {
+                    replyKeyboardMarkup.keyboard = listOf(
+                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build()),
+                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о работе").build())
+                    )
+                } else {
+                    replyKeyboardMarkup.keyboard = listOf(
+                            keyboardRow(KeyboardButton.builder().text("Ввести имя").build())
+                    )
+                }
                 message2.replyMarkup = replyKeyboardMarkup
                 message2.chatId = update.stringChatId()
                 message2.text = "Ваша фамилия для анкеты: $surname"
+                b.execute(message2)
+                userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
+            }
+            ChatState.INPUT_ABOUT_ME -> {
+                val aboutMe = update.message.text.trim()
+
+                userSessionStateService.getStateByChatId(update.chatId())?.apply {
+                    val updatedSession = this.copy(draftAboutUser = this.draftAboutUser?.copy(aboutMe = aboutMe)
+                            ?: UserAboutUpdateRequest(UUID.randomUUID(), aboutMe, null))
+                    userSessionStateService.saveState(updatedSession)
+                }
+
+                val message2 = SendMessage()
+                val replyKeyboardMarkup = ReplyKeyboardMarkup()
+
+                val currentState = userSessionStateService.getStateByChatId(update.chatId())!!
+                if (currentState.isAboutFill()) {
+                    replyKeyboardMarkup.keyboard = listOf(
+                            keyboardRow(KeyboardButton.builder().text("Создать встречу").build())
+                    )
+                } else {
+                    replyKeyboardMarkup.keyboard = listOf(
+                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о работе").build())
+                    )
+                }
+                message2.replyMarkup = replyKeyboardMarkup
+                message2.chatId = update.stringChatId()
+                message2.text = "Ваша информация о себе в анкете обновлена"
+                b.execute(message2)
+                userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
+            }
+            ChatState.INPUT_ABOUT_JOB -> {
+                val aboutJob = update.message.text.trim()
+
+                userSessionStateService.getStateByChatId(update.chatId())?.apply {
+                    val updatedSession = this.copy(draftAboutUser = this.draftAboutUser?.copy(aboutJob = aboutJob)
+                            ?: UserAboutUpdateRequest(UUID.randomUUID(), null, aboutJob))
+                    userSessionStateService.saveState(updatedSession)
+                }
+
+                val message2 = SendMessage()
+                val replyKeyboardMarkup = ReplyKeyboardMarkup()
+
+                val currentState = userSessionStateService.getStateByChatId(update.chatId())!!
+                if (currentState.isAboutFill()) {
+                    replyKeyboardMarkup.keyboard = listOf(
+                            keyboardRow(KeyboardButton.builder().text("Создать встречу").build())
+                    )
+                } else {
+                    replyKeyboardMarkup.keyboard = listOf(
+                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build())
+                    )
+                }
+                message2.replyMarkup = replyKeyboardMarkup
+                message2.chatId = update.stringChatId()
+                message2.text = "Ваша информация о своей работе в анкете обновлена"
                 b.execute(message2)
                 userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
             }
@@ -189,10 +283,11 @@ class AcquaintanceAbility : AbilityExtension {
         }
 
     }, Predicate { update ->
-        setOf("Почта", "Телефон", "Ввести имя", "Ввести фамилию").contains(update.message.text).not() &&
+        setOf("Почта", "Телефон", "Ввести имя", "Ввести фамилию", "Ввести информацию о себе", "Ввести информацию о работе").contains(update.message.text).not() &&
                 userSessionStateService.getStateByChatId(update.chatId())?.let {
                     setOf(ChatState.INPUT_EMAIL, ChatState.INPUT_PHONE,
-                            ChatState.INPUT_NAME, ChatState.INPUT_SURNAME).contains(it.currentChatState)
+                            ChatState.INPUT_NAME, ChatState.INPUT_SURNAME,
+                            ChatState.INPUT_ABOUT_JOB, ChatState.INPUT_ABOUT_ME).contains(it.currentChatState)
                 } ?: false
     })
 }

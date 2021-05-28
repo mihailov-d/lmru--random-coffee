@@ -19,4 +19,14 @@ data class SessionDto(
         val draftMeeting: MeetingUpdateRequest? = null,
         val draftCommunicationUser: UserCommunicationsUpdateRequest? = null,
         val draftAboutUser: UserAboutUpdateRequest? = null
-)
+) {
+    fun isNameAndSurnameFill(): Boolean {
+        return draftBasicUser?.let {
+            return it.name.isNullOrBlank().not() && it.surname.isNullOrBlank().not()
+        } ?: false
+    }
+
+    fun isAboutFill(): Boolean = draftAboutUser?.let {
+        return it.aboutJob.isNullOrBlank().not() && it.aboutMe.isNullOrBlank().not()
+    } ?: false
+}
