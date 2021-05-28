@@ -114,3 +114,5 @@ fabric.properties
 
 # users ignored files
 src/main/resources/bootstrap-localdev.yml
+*.iml
+.idea
