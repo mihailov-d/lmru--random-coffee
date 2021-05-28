@@ -2,6 +2,10 @@ package ru.leroymerlin.random.coffee.core.tg.ability
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.telegram.abilitybots.api.objects.Ability
+import org.telegram.abilitybots.api.objects.Locality
+import org.telegram.abilitybots.api.objects.MessageContext
+import org.telegram.abilitybots.api.objects.Privacy
 import org.telegram.abilitybots.api.objects.Reply
 import org.telegram.abilitybots.api.util.AbilityExtension
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
@@ -29,6 +33,31 @@ class MeetingAbility : AbilityExtension {
 
     @Autowired
     lateinit var userService: UserService
+
+    fun createCoffeeReqAbility(): Ability = Ability.builder()
+            .name("create_coffee_request")
+            .info("create Coffee Req")
+            .privacy(Privacy.PUBLIC)
+            .locality(Locality.USER)
+            .input(0)
+            .action { ctx: MessageContext ->
+                val sessionDto = sessionService.getStateByChatId(ctx.update().chatId())
+                sessionService.saveState(sessionDto.copy(draftMeeting = null, currentChatState = ChatState.NONE))
+
+                val message = SendMessage()
+                val replyKeyboardMarkup = ReplyKeyboardMarkup()
+                replyKeyboardMarkup.keyboard = listOf(
+                        keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_ABOUT_WORK.command).build()),
+                        keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_ABOUT_SOMETHING.command).build())
+                )
+                message.replyMarkup = replyKeyboardMarkup
+                message.chatId = ctx.update().stringChatId()
+                message.text = "О чем хотите поговорить?"
+                ctx.bot().execute(message)
+                sessionService.updateChatStateByChatId(ctx.update().chatId(), ChatState.INPUT_MEETING_TOPIC_TYPE)
+            }
+            .post { ctx: MessageContext -> println("post ${ctx.arguments()}") }
+            .build()
 
     fun createMeeting(): Reply = Reply.of({ b, update ->
         val message = SendMessage()
@@ -125,7 +154,12 @@ class MeetingAbility : AbilityExtension {
             sessionService.updateChatStateByChatId(chatId, ChatState.INPUT_MEETING_TOPIC_TYPE)
         }
         d.execute(message)
-    }, Predicate { update -> sessionService.getChatStateByChatId(update.chatId()) == ChatState.INPUT_MEETING_DATE })
+    }, Predicate { update ->
+        update.hasMessage() &&
+                update.message.hasText() &&
+                setOf(CommandList.MEETING_DATE_TODAY.command, CommandList.MEETING_DATE_TOMORROW.command, CommandList.MEETING_DATE_AFTER_TOMORROW.command).contains(update.message.text) &&
+                sessionService.getChatStateByChatId(update.chatId()) == ChatState.INPUT_MEETING_DATE
+    })
 
     fun someTextReply(): Reply = Reply.of({ b, update ->
         val chatId = update.chatId()

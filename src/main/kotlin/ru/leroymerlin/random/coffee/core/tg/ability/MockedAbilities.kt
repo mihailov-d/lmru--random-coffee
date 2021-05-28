@@ -163,16 +163,6 @@ class MockedAbilities : AbilityExtension {
         b.execute(editMessageText)
     }, Predicate { update -> update.hasCallbackQuery() })
 
-    fun createCoffeeReqAbility(): Ability {
-        return Ability.builder()
-                .name("createCoffeeReq")
-                .info("create Coffee Req")
-                .privacy(Privacy.PUBLIC)
-                .locality(Locality.USER)
-                .action { ctx: MessageContext -> ctx.bot().silent().send("mock", ctx.chatId()) }
-                .build()
-    }
-
     fun confirmMeetingAbility(): Ability {
         return Ability.builder()
                 .name("confirmMeeting")
