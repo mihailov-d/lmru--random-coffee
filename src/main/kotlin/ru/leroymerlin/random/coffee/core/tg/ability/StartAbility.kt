@@ -13,13 +13,13 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow
 import ru.leroymerlin.random.coffee.core.dto.ChatState
 import ru.leroymerlin.random.coffee.core.dto.SessionDto
-import ru.leroymerlin.random.coffee.core.service.UserSessionStateService
+import ru.leroymerlin.random.coffee.core.service.SessionService
 import java.util.UUID
 
 @Component
 class StartAbility : AbilityExtension {
     @Autowired
-    lateinit var userSessionStateService: UserSessionStateService
+    lateinit var userSessionStateService: SessionService
 
     fun startAbility(): Ability {
         return Ability.builder()

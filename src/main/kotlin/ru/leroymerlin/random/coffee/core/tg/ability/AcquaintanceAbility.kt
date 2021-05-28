@@ -13,7 +13,7 @@ import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum
 import ru.leroymerlin.random.coffee.core.dto.request.UserAboutUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserBasicUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserCommunicationsUpdateRequest
-import ru.leroymerlin.random.coffee.core.service.UserSessionStateService
+import ru.leroymerlin.random.coffee.core.service.SessionService
 import ru.leroymerlin.random.coffee.core.util.chatId
 import ru.leroymerlin.random.coffee.core.util.keyboardRow
 import ru.leroymerlin.random.coffee.core.util.stringChatId
@@ -25,16 +25,16 @@ import java.util.function.Predicate
 class AcquaintanceAbility : AbilityExtension {
 
     @Autowired
-    lateinit var userSessionStateService: UserSessionStateService
+    lateinit var userSessionStateService: SessionService
 
     fun fillCardReply(): Reply {
         return Reply.of({ b, update ->
             val message = SendMessage()
             val replyKeyboardMarkup = ReplyKeyboardMarkup()
             replyKeyboardMarkup.keyboard = listOf(
-                    keyboardRow(KeyboardButton.builder().text("Почта").build()),
-                    keyboardRow(KeyboardButton.builder().text("Телефон").build()),
-                    keyboardRow(KeyboardButton.builder().text("Телеграм").build())
+                keyboardRow(KeyboardButton.builder().text("Почта").build()),
+                keyboardRow(KeyboardButton.builder().text("Телефон").build()),
+                keyboardRow(KeyboardButton.builder().text("Телеграм").build())
             )
             message.replyMarkup = replyKeyboardMarkup
             message.chatId = update.stringChatId()
@@ -116,8 +116,19 @@ class AcquaintanceAbility : AbilityExtension {
         b.execute(message)
 
         userSessionStateService.getStateByChatId(update.chatId())?.apply {
-            val updatedSession = this.copy(draftCommunicationUser = this.draftCommunicationUser?.copy(telegram = userName, preferCommunications = setOf(UserPreferCommunicationEnum.TELEGRAM))
-                    ?: UserCommunicationsUpdateRequest(UUID.randomUUID(), null, null, userName, setOf(UserPreferCommunicationEnum.TELEGRAM)))
+            val updatedSession = this.copy(
+                draftCommunicationUser = this.draftCommunicationUser?.copy(
+                    telegram = userName,
+                    preferCommunications = setOf(UserPreferCommunicationEnum.TELEGRAM)
+                )
+                    ?: UserCommunicationsUpdateRequest(
+                        UUID.randomUUID(),
+                        null,
+                        null,
+                        userName,
+                        setOf(UserPreferCommunicationEnum.TELEGRAM)
+                    )
+            )
             userSessionStateService.saveState(updatedSession)
         }
         userSessionStateService.updateChatStateByChatId(update.chatId(), ChatState.NONE)
@@ -125,8 +136,8 @@ class AcquaintanceAbility : AbilityExtension {
         val message2 = SendMessage()
         val replyKeyboardMarkup = ReplyKeyboardMarkup()
         replyKeyboardMarkup.keyboard = listOf(
-                keyboardRow(KeyboardButton.builder().text("Ввести имя").build()),
-                keyboardRow(KeyboardButton.builder().text("Ввести фамилию").build())
+            keyboardRow(KeyboardButton.builder().text("Ввести имя").build()),
+            keyboardRow(KeyboardButton.builder().text("Ввести фамилию").build())
         )
         message2.replyMarkup = replyKeyboardMarkup
         message2.chatId = update.stringChatId()
@@ -143,8 +154,19 @@ class AcquaintanceAbility : AbilityExtension {
                 // TODO email validation
                 b.silent().sendMd("Спасибо, мы сохранили твой email: `$userEmail`", chatId)
                 userSessionStateService.getStateByChatId(update.chatId())?.apply {
-                    val updatedSession = this.copy(draftCommunicationUser = this.draftCommunicationUser?.copy(email = userEmail, preferCommunications = setOf(UserPreferCommunicationEnum.EMAIL))
-                            ?: UserCommunicationsUpdateRequest(UUID.randomUUID(), null, userEmail, null, setOf(UserPreferCommunicationEnum.EMAIL)))
+                    val updatedSession = this.copy(
+                        draftCommunicationUser = this.draftCommunicationUser?.copy(
+                            email = userEmail,
+                            preferCommunications = setOf(UserPreferCommunicationEnum.EMAIL)
+                        )
+                            ?: UserCommunicationsUpdateRequest(
+                                UUID.randomUUID(),
+                                null,
+                                userEmail,
+                                null,
+                                setOf(UserPreferCommunicationEnum.EMAIL)
+                            )
+                    )
                     userSessionStateService.saveState(updatedSession)
                 }
                 userSessionStateService.updateChatStateByChatId(chatId, ChatState.NONE)
@@ -154,8 +176,19 @@ class AcquaintanceAbility : AbilityExtension {
                 // TODO phone validation
                 b.silent().sendMd("Спасибо, мы сохранили твой телефон: `$userPhone`", chatId)
                 userSessionStateService.getStateByChatId(update.chatId())?.apply {
-                    val updatedSession = this.copy(draftCommunicationUser = this.draftCommunicationUser?.copy(phone = userPhone, preferCommunications = setOf(UserPreferCommunicationEnum.PHONE))
-                            ?: UserCommunicationsUpdateRequest(UUID.randomUUID(), phone = userPhone, null, null, setOf(UserPreferCommunicationEnum.PHONE)))
+                    val updatedSession = this.copy(
+                        draftCommunicationUser = this.draftCommunicationUser?.copy(
+                            phone = userPhone,
+                            preferCommunications = setOf(UserPreferCommunicationEnum.PHONE)
+                        )
+                            ?: UserCommunicationsUpdateRequest(
+                                UUID.randomUUID(),
+                                phone = userPhone,
+                                null,
+                                null,
+                                setOf(UserPreferCommunicationEnum.PHONE)
+                            )
+                    )
                     userSessionStateService.saveState(updatedSession)
                 }
 
@@ -166,8 +199,10 @@ class AcquaintanceAbility : AbilityExtension {
                 // TODO name validation
 
                 userSessionStateService.getStateByChatId(update.chatId())?.apply {
-                    val updatedSession = this.copy(draftBasicUser = this.draftBasicUser?.copy(name = name)
-                            ?: UserBasicUpdateRequest(UUID.randomUUID(), name, null))
+                    val updatedSession = this.copy(
+                        draftBasicUser = this.draftBasicUser?.copy(name = name)
+                            ?: UserBasicUpdateRequest(UUID.randomUUID(), name, null)
+                    )
                     userSessionStateService.saveState(updatedSession)
                 }
 
@@ -176,12 +211,12 @@ class AcquaintanceAbility : AbilityExtension {
                 val currentState = userSessionStateService.getStateByChatId(update.chatId())!!
                 if (currentState.isNameAndSurnameFill()) {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build()),
-                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о работе").build())
+                        keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build()),
+                        keyboardRow(KeyboardButton.builder().text("Ввести информацию о работе").build())
                     )
                 } else {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Ввести фамилию").build())
+                        keyboardRow(KeyboardButton.builder().text("Ввести фамилию").build())
                     )
                 }
                 message2.replyMarkup = replyKeyboardMarkup
@@ -195,8 +230,10 @@ class AcquaintanceAbility : AbilityExtension {
                 // TODO surname validation
 
                 userSessionStateService.getStateByChatId(update.chatId())?.apply {
-                    val updatedSession = this.copy(draftBasicUser = this.draftBasicUser?.copy(surname = surname)
-                            ?: UserBasicUpdateRequest(UUID.randomUUID(), null, surname))
+                    val updatedSession = this.copy(
+                        draftBasicUser = this.draftBasicUser?.copy(surname = surname)
+                            ?: UserBasicUpdateRequest(UUID.randomUUID(), null, surname)
+                    )
                     userSessionStateService.saveState(updatedSession)
                 }
 
@@ -206,12 +243,12 @@ class AcquaintanceAbility : AbilityExtension {
                 val currentState = userSessionStateService.getStateByChatId(update.chatId())!!
                 if (currentState.isNameAndSurnameFill()) {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build()),
-                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о работе").build())
+                        keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build()),
+                        keyboardRow(KeyboardButton.builder().text("Ввести информацию о работе").build())
                     )
                 } else {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Ввести имя").build())
+                        keyboardRow(KeyboardButton.builder().text("Ввести имя").build())
                     )
                 }
                 message2.replyMarkup = replyKeyboardMarkup
@@ -224,8 +261,10 @@ class AcquaintanceAbility : AbilityExtension {
                 val aboutMe = update.message.text.trim()
 
                 userSessionStateService.getStateByChatId(update.chatId())?.apply {
-                    val updatedSession = this.copy(draftAboutUser = this.draftAboutUser?.copy(aboutMe = aboutMe)
-                            ?: UserAboutUpdateRequest(UUID.randomUUID(), aboutMe, null))
+                    val updatedSession = this.copy(
+                        draftAboutUser = this.draftAboutUser?.copy(aboutMe = aboutMe)
+                            ?: UserAboutUpdateRequest(UUID.randomUUID(), aboutMe, null)
+                    )
                     userSessionStateService.saveState(updatedSession)
                 }
 
@@ -235,11 +274,11 @@ class AcquaintanceAbility : AbilityExtension {
                 val currentState = userSessionStateService.getStateByChatId(update.chatId())!!
                 if (currentState.isAboutFill()) {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Создать встречу").build())
+                        keyboardRow(KeyboardButton.builder().text("Создать встречу").build())
                     )
                 } else {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о работе").build())
+                        keyboardRow(KeyboardButton.builder().text("Ввести информацию о работе").build())
                     )
                 }
                 message2.replyMarkup = replyKeyboardMarkup
@@ -252,8 +291,10 @@ class AcquaintanceAbility : AbilityExtension {
                 val aboutJob = update.message.text.trim()
 
                 userSessionStateService.getStateByChatId(update.chatId())?.apply {
-                    val updatedSession = this.copy(draftAboutUser = this.draftAboutUser?.copy(aboutJob = aboutJob)
-                            ?: UserAboutUpdateRequest(UUID.randomUUID(), null, aboutJob))
+                    val updatedSession = this.copy(
+                        draftAboutUser = this.draftAboutUser?.copy(aboutJob = aboutJob)
+                            ?: UserAboutUpdateRequest(UUID.randomUUID(), null, aboutJob)
+                    )
                     userSessionStateService.saveState(updatedSession)
                 }
 
@@ -263,11 +304,11 @@ class AcquaintanceAbility : AbilityExtension {
                 val currentState = userSessionStateService.getStateByChatId(update.chatId())!!
                 if (currentState.isAboutFill()) {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Создать встречу").build())
+                        keyboardRow(KeyboardButton.builder().text("Создать встречу").build())
                     )
                 } else {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build())
+                        keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build())
                     )
                 }
                 message2.replyMarkup = replyKeyboardMarkup
@@ -283,11 +324,20 @@ class AcquaintanceAbility : AbilityExtension {
         }
 
     }, Predicate { update ->
-        setOf("Почта", "Телефон", "Ввести имя", "Ввести фамилию", "Ввести информацию о себе", "Ввести информацию о работе").contains(update.message.text).not() &&
+        setOf(
+            "Почта",
+            "Телефон",
+            "Ввести имя",
+            "Ввести фамилию",
+            "Ввести информацию о себе",
+            "Ввести информацию о работе"
+        ).contains(update.message.text).not() &&
                 userSessionStateService.getStateByChatId(update.chatId())?.let {
-                    setOf(ChatState.INPUT_EMAIL, ChatState.INPUT_PHONE,
-                            ChatState.INPUT_NAME, ChatState.INPUT_SURNAME,
-                            ChatState.INPUT_ABOUT_JOB, ChatState.INPUT_ABOUT_ME).contains(it.currentChatState)
+                    setOf(
+                        ChatState.INPUT_EMAIL, ChatState.INPUT_PHONE,
+                        ChatState.INPUT_NAME, ChatState.INPUT_SURNAME,
+                        ChatState.INPUT_ABOUT_JOB, ChatState.INPUT_ABOUT_ME
+                    ).contains(it.currentChatState)
                 } ?: false
     })
 }
