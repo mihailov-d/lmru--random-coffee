@@ -15,13 +15,14 @@ import java.util.UUID
 @Repository
 interface UserRepository : MongoRepository<User, String> {
     fun findOneById(id: UUID): User
-    fun findOneByTelegramUserId(telegramUserId: UserId): User
+    fun deleteById(id: UUID)
 }
 
 @Repository
 interface MeetingRepository : MongoRepository<Meeting, String> {
     fun findOneById(id: UUID): Meeting
     fun findAllByUserIdAndStatus(userId: UUID, status: MeetingStatusEnum): List<Meeting>
+    fun deleteById(id: UUID)
 }
 
 @Repository
