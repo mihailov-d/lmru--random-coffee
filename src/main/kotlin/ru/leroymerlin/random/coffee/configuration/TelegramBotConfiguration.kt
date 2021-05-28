@@ -3,50 +3,53 @@ package ru.leroymerlin.random.coffee.configuration
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.telegram.telegrambots.bots.TelegramLongPollingBot
+import org.telegram.abilitybots.api.bot.AbilityBot
+import org.telegram.abilitybots.api.objects.Ability
+import org.telegram.abilitybots.api.toggle.AbilityToggle
+import org.telegram.abilitybots.api.util.AbilityExtension
 import org.telegram.telegrambots.meta.TelegramBotsApi
-import org.telegram.telegrambots.meta.api.objects.Update
-import org.telegram.telegrambots.meta.generics.LongPollingBot
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException
-
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage
-
-
 
 
 @Configuration
 class TelegramBotConfiguration {
+
     @Bean
-    fun telegramBot(@Value("\${telegram-bot.username}") botUsername: String, @Value("\${telegram-bot.token}") botToken: String): TelegramBotsApi {
+    fun telegramBot(@Value("\${telegram-bot.username}") botUsername: String,
+                    @Value("\${telegram-bot.token}") botToken: String,
+                    abilities: List<AbilityExtension>): TelegramBotsApi {
         val tg = TelegramBotsApi(DefaultBotSession::class.java)
-        val telegramLongPollingBot = RandomCoffeeBot(botUsername, botToken)
+        val telegramLongPollingBot = RandomCoffeeBot(botUsername, botToken, abilities)
         tg.registerBot(telegramLongPollingBot)
         return tg
     }
 }
 
+class RandomCoffeeAbilityToggle : AbilityToggle {
+    override fun isOff(ab: Ability?): Boolean {
+        return true
+    }
 
-class RandomCoffeeBot(private val botUsername: String, private val botToken: String): TelegramLongPollingBot() {
+    override fun processAbility(ab: Ability?): Ability {
+        return ab!!
+    }
+}
+
+class RandomCoffeeBot(private val botUsername: String, private val botToken: String, private val abilities: List<AbilityExtension>) :
+        AbilityBot(botToken, botUsername, RandomCoffeeAbilityToggle()) {
+    init {
+        addExtensions(abilities)
+    }
+
     override fun getBotToken(): String {
         return botToken
+    }
+
+    override fun creatorId(): Long {
+        return 727579598
     }
 
     override fun getBotUsername(): String {
         return botUsername
     }
-
-    override fun onUpdateReceived(update: Update) {
-        val message = SendMessage() // Create a SendMessage object with mandatory fields
-
-        message.chatId = update.message.chatId.toString()
-        message.text = "lol kek cheburek"
-
-        try {
-            execute(message) // Call method to send the message
-        } catch (e: TelegramApiException) {
-            e.printStackTrace()
-        }
-    }
-
 }
