@@ -34,23 +34,23 @@ class MeetingAbility : AbilityExtension {
         val message = SendMessage()
         val replyKeyboardMarkup = ReplyKeyboardMarkup()
         replyKeyboardMarkup.keyboard = listOf(
-                keyboardRow(KeyboardButton.builder().text("О работе").build()),
-                keyboardRow(KeyboardButton.builder().text("Давай отдахнем, не о работе").build())
+                keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_ABOUT_WORK.command).build()),
+                keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_ABOUT_SOMETHING.command).build())
         )
         message.replyMarkup = replyKeyboardMarkup
         message.chatId = update.stringChatId()
         message.text = "О чем хотите поговорить?"
         b.execute(message)
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_MEETING_TOPIC_TYPE)
-    }, textEquals("Создать встречу"))
+    }, textEquals(CommandList.MEETING_CREATE.command))
 
 
     fun topicAboutReply(): Reply = Reply.of({ b, update ->
         val chatId = update.chatId()
         val messageText = update.message.text
         val topicType = when (messageText) {
-            "О работе" -> TopicTypeEnum.ABOUT_WORK
-            "Давай отдахнем, не о работе" -> TopicTypeEnum.ABOUT_OTHER
+            CommandList.MEETING_ABOUT_WORK.command -> TopicTypeEnum.ABOUT_WORK
+            CommandList.MEETING_ABOUT_SOMETHING.command -> TopicTypeEnum.ABOUT_OTHER
             else -> throw IllegalStateException("unknown message topicType: $messageText")
         }
         val userSession = sessionService.getStateByChatId(chatId).let {
@@ -65,7 +65,7 @@ class MeetingAbility : AbilityExtension {
         if (userSession.isMeetingFill()) {
             // TODO next step
             replyKeyboardMarkup.keyboard = listOf(
-                    keyboardRow(KeyboardButton.builder().text("Опубликовать анкету для встречи").build())
+                    keyboardRow(KeyboardButton.builder().text(CommandList.MATCH_MEETING_START.command).build())
             )
             // TODO save draft meeting
 //            userService.update(userSession.draftMeeting!!)
@@ -74,9 +74,9 @@ class MeetingAbility : AbilityExtension {
         } else {
             // TODO fill dates
             replyKeyboardMarkup.keyboard = listOf(
-                    keyboardRow(KeyboardButton.builder().text("Сегодня").build()),
-                    keyboardRow(KeyboardButton.builder().text("Завтра").build()),
-                    keyboardRow(KeyboardButton.builder().text("Послезавтра").build())
+                    keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_DATE_TODAY.command).build()),
+                    keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_DATE_TOMORROW.command).build()),
+                    keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_DATE_AFTER_TOMORROW.command).build())
             )
             message2.text = "Веберите дату встречи"
             sessionService.updateChatStateByChatId(chatId, ChatState.INPUT_MEETING_DATE)
@@ -84,7 +84,7 @@ class MeetingAbility : AbilityExtension {
         message2.replyMarkup = replyKeyboardMarkup
         message2.chatId = update.stringChatId()
         b.execute(message2)
-    }, textEquals("О работе").or(textEquals("Давай отдахнем, не о работе")))
+    }, textEquals(CommandList.MEETING_ABOUT_WORK.command).or(textEquals(CommandList.MEETING_ABOUT_SOMETHING.command)))
 
     fun meetingDateReply(): Reply = Reply.of({ d, update ->
         val text = update.message.text
@@ -92,9 +92,9 @@ class MeetingAbility : AbilityExtension {
 
         val moscowZoneId = ZoneId.of("Europe/Moscow")
         val preferDate = when (text) {
-            "Сегодня" -> LocalDate.now(moscowZoneId)
-            "Завтра" -> LocalDate.now(moscowZoneId).plusDays(1)
-            "Послезавтра" -> LocalDate.now(moscowZoneId).plusDays(2)
+            CommandList.MEETING_DATE_TODAY.command -> LocalDate.now(moscowZoneId)
+            CommandList.MEETING_DATE_TOMORROW.command -> LocalDate.now(moscowZoneId).plusDays(1)
+            CommandList.MEETING_DATE_AFTER_TOMORROW.command -> LocalDate.now(moscowZoneId).plusDays(2)
             else -> throw IllegalStateException("unknown meeting date: $text")
         }
 
@@ -110,15 +110,15 @@ class MeetingAbility : AbilityExtension {
         val replyKeyboardMarkup = ReplyKeyboardMarkup()
         if (userSession.isMeetingFill()) {
             replyKeyboardMarkup.keyboard = listOf(
-                    keyboardRow(KeyboardButton.builder().text("Опубликовать анкету для встречи").build())
+                    keyboardRow(KeyboardButton.builder().text(CommandList.MATCH_MEETING_START.command).build())
             )
             message.replyMarkup = replyKeyboardMarkup
             message.text = "Спасибо, публикуем анкету для встречи?"
             sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
         } else {
             replyKeyboardMarkup.keyboard = listOf(
-                    keyboardRow(KeyboardButton.builder().text("О работе").build()),
-                    keyboardRow(KeyboardButton.builder().text("Давай отдахнем, не о работе").build())
+                    keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_ABOUT_WORK.command).build()),
+                    keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_ABOUT_SOMETHING.command).build())
             )
             message.replyMarkup = replyKeyboardMarkup
             message.text = "О чем хотите поговорить?"
@@ -137,7 +137,7 @@ class MeetingAbility : AbilityExtension {
         sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
     }, Predicate { update ->
         false
-//        setOf("О работе", "Давай отдахнем, не о работе").contains(update.message.text).not() &&
+//        setOf(CommandList.MEETING_ABOUT_WORK.command, CommandList.MEETING_ABOUT_SOMETHING.command).contains(update.message.text).not() &&
 //                sessionService.getStateByChatId(update.chatId()).let {
 //                    setOf(ChatState.INPUT_MEETING_TOPIC_TYPE).contains(it.currentChatState)
 //                }

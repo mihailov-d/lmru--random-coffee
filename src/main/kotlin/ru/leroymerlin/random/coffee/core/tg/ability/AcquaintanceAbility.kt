@@ -36,9 +36,9 @@ class AcquaintanceAbility : AbilityExtension {
             val message = SendMessage()
             val replyKeyboardMarkup = ReplyKeyboardMarkup()
             replyKeyboardMarkup.keyboard = listOf(
-                    keyboardRow(KeyboardButton.builder().text("Почта").build()),
-                    keyboardRow(KeyboardButton.builder().text("Телефон").build()),
-                    keyboardRow(KeyboardButton.builder().text("Телеграм").build())
+                    keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_EMAIL.command).build()),
+                    keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_PHONE.command).build()),
+                    keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_TELEGRAM.command).build())
             )
             message.replyMarkup = replyKeyboardMarkup
             message.chatId = update.stringChatId()
@@ -55,7 +55,7 @@ class AcquaintanceAbility : AbilityExtension {
         b.execute(message)
 
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_EMAIL)
-    }, textEquals("Почта"))
+    }, textEquals(CommandList.ACQUAINTANCE_INPUT_EMAIL.command))
 
     fun typePhoneReply(): Reply = Reply.of({ b, update ->
         val message = SendMessage()
@@ -65,7 +65,7 @@ class AcquaintanceAbility : AbilityExtension {
         b.execute(message)
 
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_PHONE)
-    }, textEquals("Телефон"))
+    }, textEquals(CommandList.ACQUAINTANCE_INPUT_PHONE.command))
 
     fun typeInputNameReply(): Reply = Reply.of({ b, update ->
         val message = SendMessage()
@@ -75,7 +75,7 @@ class AcquaintanceAbility : AbilityExtension {
         b.execute(message)
 
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_NAME)
-    }, textEquals("Ввести имя"))
+    }, textEquals(CommandList.ACQUAINTANCE_INPUT_NAME.command))
 
     fun typeInputSurnameReply(): Reply = Reply.of({ b, update ->
         val message = SendMessage()
@@ -85,7 +85,7 @@ class AcquaintanceAbility : AbilityExtension {
         b.execute(message)
 
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_SURNAME)
-    }, textEquals("Ввести фамилию"))
+    }, textEquals(CommandList.ACQUAINTANCE_INPUT_SURNAME.command))
 
     fun typeAboutMeReply(): Reply = Reply.of({ b, update ->
         val message = SendMessage()
@@ -95,7 +95,7 @@ class AcquaintanceAbility : AbilityExtension {
         b.execute(message)
 
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_ABOUT_ME)
-    }, textEquals("Ввести информацию о себе"))
+    }, textEquals(CommandList.ACQUAINTANCE_INPUT_ABOUT_ME.command))
 
     fun typeAboutJobReply(): Reply = Reply.of({ b, update ->
         val message = SendMessage()
@@ -105,7 +105,7 @@ class AcquaintanceAbility : AbilityExtension {
         b.execute(message)
 
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_ABOUT_JOB)
-    }, textEquals("Ввести информацию о работе"))
+    }, textEquals(CommandList.ACQUAINTANCE_INPUT_ABOUT_WORK.command))
 
     fun typeTelegramReply(): Reply = Reply.of({ b, update ->
         // TODO save telegram id as contact type
@@ -130,14 +130,14 @@ class AcquaintanceAbility : AbilityExtension {
         val message2 = SendMessage()
         val replyKeyboardMarkup = ReplyKeyboardMarkup()
         replyKeyboardMarkup.keyboard = listOf(
-                keyboardRow(KeyboardButton.builder().text("Ввести имя").build()),
-                keyboardRow(KeyboardButton.builder().text("Ввести фамилию").build())
+                keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_NAME.command).build()),
+                keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_SURNAME.command).build())
         )
         message2.replyMarkup = replyKeyboardMarkup
         message2.chatId = update.stringChatId()
         message2.text = "Введите информацию о себе"
         b.execute(message2)
-    }, textEquals("Телеграм"))
+    }, textEquals(CommandList.ACQUAINTANCE_INPUT_TELEGRAM.command))
 
     fun commonTextAbility(): Reply = Reply.of({ b, update ->
         val chatId = update.chatId()
@@ -183,13 +183,13 @@ class AcquaintanceAbility : AbilityExtension {
                 val currentState = sessionService.getStateByChatId(chatId)
                 if (currentState.isNameAndSurnameFill()) {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build()),
-                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о работе").build())
+                            keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_ABOUT_ME.command).build()),
+                            keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_ABOUT_WORK.command).build())
                     )
                     userService.update(userSession.draftBasicUser!!)
                 } else {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Ввести фамилию").build())
+                            keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_SURNAME.command).build())
                     )
                 }
                 message2.replyMarkup = replyKeyboardMarkup
@@ -214,13 +214,13 @@ class AcquaintanceAbility : AbilityExtension {
                 val currentState = sessionService.getStateByChatId(chatId)
                 if (currentState.isNameAndSurnameFill()) {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build()),
-                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о работе").build())
+                            keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_ABOUT_ME.command).build()),
+                            keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_ABOUT_WORK.command).build())
                     )
                     userService.update(userSession.draftBasicUser!!)
                 } else {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Ввести имя").build())
+                            keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_NAME.command).build())
                     )
                 }
                 message2.replyMarkup = replyKeyboardMarkup
@@ -244,12 +244,12 @@ class AcquaintanceAbility : AbilityExtension {
                 val currentState = sessionService.getStateByChatId(chatId)
                 if (currentState.isAboutFill()) {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Создать встречу").build())
+                            keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_CREATE.command).build())
                     )
                     userService.update(userSession.draftAboutUser!!)
                 } else {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о работе").build())
+                            keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_ABOUT_WORK.command).build())
                     )
                 }
                 message2.replyMarkup = replyKeyboardMarkup
@@ -273,12 +273,12 @@ class AcquaintanceAbility : AbilityExtension {
                 val currentState = sessionService.getStateByChatId(chatId)
                 if (currentState.isAboutFill()) {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Создать встречу").build())
+                            keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_CREATE.command).build())
                     )
                     userService.update(userSession.draftAboutUser!!)
                 } else {
                     replyKeyboardMarkup.keyboard = listOf(
-                            keyboardRow(KeyboardButton.builder().text("Ввести информацию о себе").build())
+                            keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_ABOUT_ME.command).build())
                     )
                 }
                 message2.replyMarkup = replyKeyboardMarkup
@@ -294,7 +294,7 @@ class AcquaintanceAbility : AbilityExtension {
         }
 
     }, Predicate { update ->
-        setOf("Почта", "Телефон", "Ввести имя", "Ввести фамилию", "Ввести информацию о себе", "Ввести информацию о работе").contains(update.message.text).not() &&
+        setOf(CommandList.ACQUAINTANCE_INPUT_EMAIL.command, CommandList.ACQUAINTANCE_INPUT_PHONE.command, CommandList.ACQUAINTANCE_INPUT_NAME.command, CommandList.ACQUAINTANCE_INPUT_SURNAME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_ME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_WORK.command).contains(update.message.text).not() &&
                 sessionService.getStateByChatId(update.chatId()).let {
                     setOf(ChatState.INPUT_EMAIL, ChatState.INPUT_PHONE,
                             ChatState.INPUT_NAME, ChatState.INPUT_SURNAME,

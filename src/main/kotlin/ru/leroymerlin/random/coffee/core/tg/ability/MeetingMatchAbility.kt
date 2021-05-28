@@ -11,5 +11,5 @@ class MeetingMatchAbility : AbilityExtension {
     fun publishMeetingReply(): Reply = Reply.of({ b, update ->
         b.silent().sendMd("Встреча опубликована", update.chatId())
         // TODO meeting publicate logic
-    }, textEquals("Опубликовать анкету для встречи"))
+    }, textEquals(CommandList.MATCH_MEETING_START.command))
 }
