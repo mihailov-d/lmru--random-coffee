@@ -4,16 +4,18 @@ import ru.leroymerlin.random.coffee.core.dto.request.MeetingUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserAboutUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserBasicUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserCommunicationsUpdateRequest
-import ru.leroymerlin.random.coffee.core.util.ChatId
-import ru.leroymerlin.random.coffee.core.util.UserId
+import ru.leroymerlin.random.coffee.core.util.TgChatId
+import ru.leroymerlin.random.coffee.core.util.TgUserId
 import java.util.UUID
 
 // future @Document
 data class SessionDto(
         // internal id
         val id: UUID,
-        val userId: UserId,
-        val chatId: ChatId,
+        // internal userId
+        val userId: UUID,
+        val telegramUserId: TgUserId,
+        val telegramChatId: TgChatId,
         val currentChatState: ChatState = ChatState.NONE,
         val draftBasicUser: UserBasicUpdateRequest? = null,
         val draftMeeting: MeetingUpdateRequest? = null,

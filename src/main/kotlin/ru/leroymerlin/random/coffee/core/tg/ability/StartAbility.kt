@@ -12,14 +12,17 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow
 import ru.leroymerlin.random.coffee.core.dto.ChatState
-import ru.leroymerlin.random.coffee.core.dto.SessionDto
+import ru.leroymerlin.random.coffee.core.dto.request.UserCreateRequest
 import ru.leroymerlin.random.coffee.core.service.SessionService
-import java.util.UUID
+import ru.leroymerlin.random.coffee.core.service.UserService
 
 @Component
 class StartAbility : AbilityExtension {
     @Autowired
-    lateinit var userSessionStateService: SessionService
+    lateinit var sessionService: SessionService
+
+    @Autowired
+    lateinit var userService: UserService
 
     fun startAbility(): Ability {
         return Ability.builder()
@@ -40,10 +43,14 @@ class StartAbility : AbilityExtension {
                     message.chatId = ctx.chatId().toString()
                     message.text = "Давай знакомиться"
                     ctx.bot().execute(message)
-                    userSessionStateService.saveState(SessionDto(
-                            id = UUID.randomUUID(),
-                            userId = ctx.user().id,
-                            chatId = ctx.chatId(),
+                    val user = userService.create(UserCreateRequest(
+                            ctx.user().id, ctx.user().userName
+                    ))
+                    val currentSession = sessionService.getStateByChatId(ctx.chatId())
+                    sessionService.saveState(currentSession.copy(
+                            userId = user.id,
+                            telegramUserId = ctx.user().id,
+                            telegramChatId = ctx.chatId(),
                             currentChatState = ChatState.NONE
                     ))
                 }

@@ -1,5 +1,5 @@
 package ru.leroymerlin.random.coffee.core.exception
 
-import ru.leroymerlin.random.coffee.core.util.ChatId
+import ru.leroymerlin.random.coffee.core.util.TgChatId
 
-class SessionNotFoundException(chatId: ChatId) : RuntimeException("Can't find session by chatId: $chatId")
+class SessionNotFoundException(tgChatId: TgChatId) : RuntimeException("Can't find session by chatId: $tgChatId")

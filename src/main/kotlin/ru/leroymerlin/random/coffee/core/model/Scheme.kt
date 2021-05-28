@@ -11,39 +11,40 @@ import ru.leroymerlin.random.coffee.core.dto.request.MeetingUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserAboutUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserBasicUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserCommunicationsUpdateRequest
-import ru.leroymerlin.random.coffee.core.util.ChatId
-import ru.leroymerlin.random.coffee.core.util.UserId
+import ru.leroymerlin.random.coffee.core.util.TgChatId
+import ru.leroymerlin.random.coffee.core.util.TgUserId
 import java.time.LocalDateTime
 import java.util.UUID
 
 
 @Document data class User(
-    @Id val id: UUID,
-    val telegramUserId: UserId? = 0L,
-    val name: String? = null,
-    val surname: String? = null,
-    val preferCommunications: Set<UserPreferCommunicationEnum>? = null,
-    val email: String? = null,
-    val phone: String? = null,
-    val telegramUsername: String? = null,
-    val aboutMe: String? = null,
-    val aboutJob: String? = null,
-    val createdDate: LocalDateTime = LocalDateTime.now(),
-    val editedDate:  LocalDateTime = LocalDateTime.now(),
-    val status: UserStatusEnum = UserStatusEnum.DRAFT
+        @Id val id: UUID,
+        val telegramUserId: TgUserId? = 0L,
+        val name: String? = null,
+        val surname: String? = null,
+        val preferCommunications: Set<UserPreferCommunicationEnum>? = null,
+        val email: String? = null,
+        val phone: String? = null,
+        val telegramUsername: String? = null,
+        val aboutMe: String? = null,
+        val aboutJob: String? = null,
+        val createdDate: LocalDateTime = LocalDateTime.now(),
+        val editedDate: LocalDateTime = LocalDateTime.now(),
+        val status: UserStatusEnum = UserStatusEnum.DRAFT
 )
 
 @Document data class Session(
-    @Id val id: UUID,
-    val userId: UserId,
-    val chatId: ChatId,
-    val currentChatState: ChatState = ChatState.NONE,
-    val draftBasicUser: UserBasicUpdateRequest? = null,
-    val draftMeeting: MeetingUpdateRequest? = null,
-    val draftCommunicationUser: UserCommunicationsUpdateRequest? = null,
-    val draftAboutUser: UserAboutUpdateRequest? = null,
-    val createdDate: LocalDateTime = LocalDateTime.now(),
-    val editedDate: LocalDateTime = LocalDateTime.now()
+        @Id val id: UUID,
+        val userId: UUID,
+        val tgUserId: TgUserId,
+        val tgChatId: TgChatId,
+        val currentChatState: ChatState = ChatState.NONE,
+        val draftBasicUser: UserBasicUpdateRequest? = null,
+        val draftMeeting: MeetingUpdateRequest? = null,
+        val draftCommunicationUser: UserCommunicationsUpdateRequest? = null,
+        val draftAboutUser: UserAboutUpdateRequest? = null,
+        val createdDate: LocalDateTime = LocalDateTime.now(),
+        val editedDate: LocalDateTime = LocalDateTime.now()
 
 )
 

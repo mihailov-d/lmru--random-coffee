@@ -19,7 +19,6 @@ import ru.leroymerlin.random.coffee.core.util.chatId
 import ru.leroymerlin.random.coffee.core.util.keyboardRow
 import ru.leroymerlin.random.coffee.core.util.stringChatId
 import ru.leroymerlin.random.coffee.core.util.textEquals
-import java.util.UUID
 import java.util.function.Predicate
 
 @Component
@@ -126,7 +125,7 @@ class AcquaintanceAbility : AbilityExtension {
                             preferCommunications = setOf(UserPreferCommunicationEnum.TELEGRAM)
                     )
                             ?: UserCommunicationsUpdateRequest(
-                                    UUID.randomUUID(),
+                                    it.userId,
                                     null,
                                     null,
                                     userName,
@@ -164,7 +163,7 @@ class AcquaintanceAbility : AbilityExtension {
                                     preferCommunications = setOf(UserPreferCommunicationEnum.EMAIL)
                             )
                                     ?: UserCommunicationsUpdateRequest(
-                                            UUID.randomUUID(),
+                                            it.userId,
                                             null,
                                             userEmail,
                                             null,
@@ -187,7 +186,7 @@ class AcquaintanceAbility : AbilityExtension {
                                     preferCommunications = setOf(UserPreferCommunicationEnum.PHONE)
                             )
                                     ?: UserCommunicationsUpdateRequest(
-                                            UUID.randomUUID(),
+                                            it.userId,
                                             phone = userPhone,
                                             null,
                                             null,
@@ -207,7 +206,7 @@ class AcquaintanceAbility : AbilityExtension {
                 val userSession = sessionService.getStateByChatId(chatId).let {
                     val updatedSession = it.copy(
                             draftBasicUser = it.draftBasicUser?.copy(name = name)
-                                    ?: UserBasicUpdateRequest(UUID.randomUUID(), name, null)
+                                    ?: UserBasicUpdateRequest(it.userId, name, null)
                     )
                     sessionService.saveState(updatedSession)
                 }
@@ -239,7 +238,7 @@ class AcquaintanceAbility : AbilityExtension {
                 val userSession = sessionService.getStateByChatId(chatId).let {
                     val updatedSession = it.copy(
                             draftBasicUser = it.draftBasicUser?.copy(surname = surname)
-                                    ?: UserBasicUpdateRequest(UUID.randomUUID(), null, surname)
+                                    ?: UserBasicUpdateRequest(it.userId, null, surname)
                     )
                     sessionService.saveState(updatedSession)
                 }
@@ -271,7 +270,7 @@ class AcquaintanceAbility : AbilityExtension {
                 val userSession = sessionService.getStateByChatId(chatId).let {
                     val updatedSession = it.copy(
                             draftAboutUser = it.draftAboutUser?.copy(aboutMe = aboutMe)
-                                    ?: UserAboutUpdateRequest(UUID.randomUUID(), aboutMe, null)
+                                    ?: UserAboutUpdateRequest(it.userId, aboutMe, null)
                     )
                     sessionService.saveState(updatedSession)
                 }
@@ -302,7 +301,7 @@ class AcquaintanceAbility : AbilityExtension {
                 val userSession = sessionService.getStateByChatId(chatId).let {
                     val updatedSession = it.copy(
                             draftAboutUser = it.draftAboutUser?.copy(aboutJob = aboutJob)
-                                    ?: UserAboutUpdateRequest(UUID.randomUUID(), null, aboutJob)
+                                    ?: UserAboutUpdateRequest(it.userId, null, aboutJob)
                     )
                     sessionService.saveState(updatedSession)
                 }

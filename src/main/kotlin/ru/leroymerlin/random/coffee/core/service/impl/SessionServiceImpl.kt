@@ -1,6 +1,7 @@
 package ru.leroymerlin.random.coffee.core.service.impl
 
 import org.slf4j.LoggerFactory
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.stereotype.Service
 import ru.leroymerlin.random.coffee.core.dto.ChatState
 import ru.leroymerlin.random.coffee.core.dto.SessionDto
@@ -8,9 +9,10 @@ import ru.leroymerlin.random.coffee.core.exception.SessionNotFoundException
 import ru.leroymerlin.random.coffee.core.model.Session
 import ru.leroymerlin.random.coffee.core.repository.SessionRepository
 import ru.leroymerlin.random.coffee.core.service.SessionService
-import ru.leroymerlin.random.coffee.core.util.ChatId
-import ru.leroymerlin.random.coffee.core.util.UserId
+import ru.leroymerlin.random.coffee.core.util.TgChatId
+import ru.leroymerlin.random.coffee.core.util.TgUserId
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Service
 class SessionServiceImpl(
@@ -21,9 +23,9 @@ class SessionServiceImpl(
         val logger = LoggerFactory.getLogger(this::class.java)
     }
 
-    override fun getState(userId: UserId): SessionDto? {
+    override fun getState(tgUserId: TgUserId): SessionDto? {
         return try {
-            modelTo(sessionRepository.findOneByUserId(userId))
+            modelTo(sessionRepository.findOneByTgUserId(tgUserId))
         } catch (ex: Exception) {
             logger.error("Cannot find session by userId", ex)
             null
@@ -35,7 +37,7 @@ class SessionServiceImpl(
         val oldSession = try {
             sessionRepository.findOneById(userSessionState.id)
         } catch (ex: Exception) {
-            throw SessionNotFoundException(userSessionState.chatId)
+            null
         }
         val savedSession = sessionRepository.save(
                 if (oldSession != null) {
@@ -49,25 +51,33 @@ class SessionServiceImpl(
         return modelTo(savedSession)
     }
 
-    override fun getStateByChatId(chatId: ChatId): SessionDto {
+    override fun getStateByChatId(tgChatId: TgChatId): SessionDto {
         return try {
-            modelTo(sessionRepository.findOneByChatId(chatId))
+            modelTo(sessionRepository.findOneByTgChatId(tgChatId))
+        } catch (ex: EmptyResultDataAccessException) {
+            return saveState(SessionDto(
+                    id = UUID.randomUUID(),
+                    userId = UUID.randomUUID(),
+                    telegramUserId = 0L,
+                    telegramChatId = 0L,
+                    currentChatState = ChatState.NONE
+            ))
         } catch (ex: Exception) {
             logger.debug("Cannot find session by chatId")
-            throw SessionNotFoundException(chatId)
+            throw SessionNotFoundException(tgChatId)
         }
     }
 
-    override fun updateChatStateByChatId(chatId: ChatId, chatState: ChatState) {
-        val session = sessionRepository.findOneByChatId(chatId)
+    override fun updateChatStateByChatId(tgChatId: TgChatId, chatState: ChatState) {
+        val session = sessionRepository.findOneByTgChatId(tgChatId)
         val updateSession = session.copy(currentChatState = chatState, editedDate = LocalDateTime.now())
         sessionRepository.save(updateSession)
         logger.debug("Update state for session by chatId")
     }
 
-    override fun getChatStateByChatId(chatId: ChatId): ChatState? {
+    override fun getChatStateByChatId(tgChatId: TgChatId): ChatState? {
         return try {
-            sessionRepository.findOneByChatId(chatId)
+            sessionRepository.findOneByTgChatId(tgChatId)
         } catch (ex: Exception) {
             null
         }?.currentChatState
@@ -79,7 +89,8 @@ class SessionServiceImpl(
             SessionDto(
                     id,
                     userId,
-                    chatId,
+                    tgUserId,
+                    tgChatId,
                     currentChatState,
                     draftBasicUser,
                     draftMeeting,
@@ -94,7 +105,8 @@ class SessionServiceImpl(
             Session(
                     id,
                     userId,
-                    chatId,
+                    telegramUserId,
+                    telegramChatId,
                     currentChatState,
                     draftBasicUser,
                     draftMeeting,
