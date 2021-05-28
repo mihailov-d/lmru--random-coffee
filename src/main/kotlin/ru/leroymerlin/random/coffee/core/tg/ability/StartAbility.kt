@@ -12,8 +12,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow
 import ru.leroymerlin.random.coffee.core.dto.ChatState
-import ru.leroymerlin.random.coffee.core.dto.UserSessionState
+import ru.leroymerlin.random.coffee.core.dto.SessionDto
 import ru.leroymerlin.random.coffee.core.service.UserSessionStateService
+import java.util.UUID
 
 @Component
 class StartAbility : AbilityExtension {
@@ -39,7 +40,8 @@ class StartAbility : AbilityExtension {
                     message.chatId = ctx.chatId().toString()
                     message.text = "Давай знакомиться"
                     ctx.bot().execute(message)
-                    userSessionStateService.saveState(UserSessionState(
+                    userSessionStateService.saveState(SessionDto(
+                            id = UUID.randomUUID(),
                             userId = ctx.user().id,
                             chatId = ctx.chatId(),
                             currentChatState = ChatState.NONE

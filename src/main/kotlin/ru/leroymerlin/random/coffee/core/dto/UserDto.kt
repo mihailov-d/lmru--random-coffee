@@ -4,7 +4,9 @@ import ru.leroymerlin.random.coffee.core.dto.UserStatusEnum.DRAFT
 import java.util.UUID
 
 // Add other fields
+// future @Document
 data class UserDto(
+        // internal user id, uniq
     val id: UUID,
     val telegramUserId: String,
     val name: String? = null,
