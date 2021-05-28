@@ -1,4 +1,4 @@
 package ru.leroymerlin.random.coffee.core.dto.request
 
 // Add other fields
-data class UserCreateRequest(val telegramUserId: String)
+data class UserCreateRequest(val telegramUserId: Long, val telegramUserName: String)
