@@ -13,8 +13,8 @@ import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum
 import ru.leroymerlin.random.coffee.core.dto.request.UserAboutUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserBasicUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserCommunicationsUpdateRequest
+import ru.leroymerlin.random.coffee.core.service.SessionService
 import ru.leroymerlin.random.coffee.core.service.UserService
-import ru.leroymerlin.random.coffee.core.service.UserSessionStateService
 import ru.leroymerlin.random.coffee.core.util.chatId
 import ru.leroymerlin.random.coffee.core.util.keyboardRow
 import ru.leroymerlin.random.coffee.core.util.stringChatId
@@ -26,7 +26,7 @@ import java.util.function.Predicate
 class AcquaintanceAbility : AbilityExtension {
 
     @Autowired
-    lateinit var userSessionStateService: UserSessionStateService
+    lateinit var userSessionStateService: SessionService
 
     @Autowired
     lateinit var userService: UserService

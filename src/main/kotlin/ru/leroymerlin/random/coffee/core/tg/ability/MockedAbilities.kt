@@ -10,7 +10,6 @@ import org.telegram.abilitybots.api.util.AbilityExtension
 @Component
 class MockedAbilities : AbilityExtension {
 
-
     fun createProfileAbility(): Ability {
         return Ability.builder()
                 .name("createProfile")

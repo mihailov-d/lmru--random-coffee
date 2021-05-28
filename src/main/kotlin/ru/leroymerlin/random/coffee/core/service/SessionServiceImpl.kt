@@ -9,7 +9,7 @@ import ru.leroymerlin.random.coffee.core.util.UserId
 import java.util.concurrent.ConcurrentHashMap
 
 @Component
-class UserSessionStateService : SessionService {
+class SessionServiceImpl : SessionService {
     val storage = ConcurrentHashMap<UserId, SessionDto>()
     val chatIdToUserIdStorage = ConcurrentHashMap<ChatId, UserId>()
 
