@@ -5,34 +5,11 @@ import org.telegram.abilitybots.api.objects.Ability
 import org.telegram.abilitybots.api.objects.Locality
 import org.telegram.abilitybots.api.objects.MessageContext
 import org.telegram.abilitybots.api.objects.Privacy
-import org.telegram.abilitybots.api.objects.Reply
 import org.telegram.abilitybots.api.util.AbilityExtension
-import org.telegram.abilitybots.api.util.AbilityUtils
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton
-import ru.leroymerlin.random.coffee.core.util.keyboardRow
-import ru.leroymerlin.random.coffee.core.util.textEquals
 
 @Component
 class MockedAbilities : AbilityExtension {
 
-    fun fillCardReply(): Reply {
-        return Reply.of({ b, update ->
-            val message = SendMessage()
-            val replyKeyboardMarkup = ReplyKeyboardMarkup()
-            replyKeyboardMarkup.keyboard = listOf(
-                    keyboardRow(KeyboardButton.builder().text("Почта").build()),
-                    keyboardRow(KeyboardButton.builder().text("Телефон").build()),
-                    keyboardRow(KeyboardButton.builder().text("Телеграм").build())
-            )
-            message.replyMarkup = replyKeyboardMarkup
-            message.chatId = AbilityUtils.getChatId(update).toString()
-            message.text = "Выберите наиболее удобный связи с тобой"
-            b.execute(message)
-        },
-                textEquals("Заполнить карточку"))
-    }
 
     fun createProfileAbility(): Ability {
         return Ability.builder()

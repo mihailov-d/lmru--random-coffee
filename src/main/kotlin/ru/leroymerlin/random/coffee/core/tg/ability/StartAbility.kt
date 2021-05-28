@@ -1,5 +1,6 @@
 package ru.leroymerlin.random.coffee.core.tg.ability
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.telegram.abilitybots.api.objects.Ability
 import org.telegram.abilitybots.api.objects.Locality
@@ -10,9 +11,15 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow
+import ru.leroymerlin.random.coffee.core.dto.ChatState
+import ru.leroymerlin.random.coffee.core.dto.UserSessionState
+import ru.leroymerlin.random.coffee.core.service.UserSessionStateService
 
 @Component
 class StartAbility : AbilityExtension {
+    @Autowired
+    lateinit var userSessionStateService: UserSessionStateService
+
     fun startAbility(): Ability {
         return Ability.builder()
                 .name("start")
@@ -32,6 +39,11 @@ class StartAbility : AbilityExtension {
                     message.chatId = ctx.chatId().toString()
                     message.text = "Давай знакомиться"
                     ctx.bot().execute(message)
+                    userSessionStateService.saveState(UserSessionState(
+                            userId = ctx.user().id,
+                            chatId = ctx.chatId(),
+                            currentChatState = ChatState.NONE
+                    ))
                 }
                 .build()
     }
