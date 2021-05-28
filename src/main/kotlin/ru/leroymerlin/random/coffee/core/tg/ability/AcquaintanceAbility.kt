@@ -172,6 +172,18 @@ class AcquaintanceAbility : AbilityExtension {
                     )
                     sessionService.saveState(updatedSession)
                 }
+
+                val message2 = SendMessage()
+                val replyKeyboardMarkup = ReplyKeyboardMarkup()
+                replyKeyboardMarkup.keyboard = listOf(
+                        keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_NAME.command).build()),
+                        keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_SURNAME.command).build())
+                )
+                message2.replyMarkup = replyKeyboardMarkup
+                message2.chatId = update.stringChatId()
+                message2.text = "Введите информацию о себе"
+                b.execute(message2)
+
                 sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
                 userService.update(userSession.draftCommunicationUser!!)
             }
@@ -195,6 +207,16 @@ class AcquaintanceAbility : AbilityExtension {
                     )
                     sessionService.saveState(updatedSession)
                 }
+                val message2 = SendMessage()
+                val replyKeyboardMarkup = ReplyKeyboardMarkup()
+                replyKeyboardMarkup.keyboard = listOf(
+                        keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_NAME.command).build()),
+                        keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_SURNAME.command).build())
+                )
+                message2.replyMarkup = replyKeyboardMarkup
+                message2.chatId = update.stringChatId()
+                message2.text = "Введите информацию о себе"
+                b.execute(message2)
 
                 sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
                 userService.update(userSession.draftCommunicationUser!!)
