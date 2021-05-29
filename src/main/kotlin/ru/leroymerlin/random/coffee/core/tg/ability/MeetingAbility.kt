@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow
 import ru.leroymerlin.random.coffee.core.dto.ChatState
 import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingUpdateRequest
@@ -51,18 +52,30 @@ class MeetingAbility : AbilityExtension {
             .action { ctx: MessageContext ->
                 val sessionDto = sessionService.getStateByChatId(ctx.update().chatId())
                 sessionService.saveState(sessionDto.copy(draftMeeting = null, currentChatState = ChatState.NONE))
-
-                val message = SendMessage()
-                val replyKeyboardMarkup = ReplyKeyboardMarkup()
-                replyKeyboardMarkup.keyboard = listOf(
-                        keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_ABOUT_WORK.command).build()),
-                        keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_ABOUT_SOMETHING.command).build())
-                )
-                message.replyMarkup = replyKeyboardMarkup
-                message.chatId = ctx.update().stringChatId()
-                message.text = "О чем хочешь поговорить за кофе?"
-                ctx.bot().execute(message)
-                sessionService.updateChatStateByChatId(ctx.update().chatId(), ChatState.INPUT_MEETING_TOPIC_TYPE)
+                if (sessionDto.isProfileFill()) {
+                    val message = SendMessage()
+                    val replyKeyboardMarkup = ReplyKeyboardMarkup()
+                    replyKeyboardMarkup.keyboard = listOf(
+                            keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_ABOUT_WORK.command).build()),
+                            keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_ABOUT_SOMETHING.command).build())
+                    )
+                    message.replyMarkup = replyKeyboardMarkup
+                    message.chatId = ctx.update().stringChatId()
+                    message.text = "О чем хочешь поговорить за кофе?"
+                    ctx.bot().execute(message)
+                    sessionService.updateChatStateByChatId(ctx.update().chatId(), ChatState.INPUT_MEETING_TOPIC_TYPE)
+                } else {
+                    val message = SendMessage()
+                    val replyKeyboardMarkup = ReplyKeyboardMarkup()
+                    replyKeyboardMarkup.keyboard = listOf(keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_FILL_CARD.command).build()))
+                    replyKeyboardMarkup.oneTimeKeyboard = true
+                    message.replyMarkup = replyKeyboardMarkup
+                    message.chatId = ctx.update().stringChatId()
+                    message.text = """
+                        Вам необходимо дозаполнить профиль
+                    """.trimIndent()
+                    ctx.bot().execute(message)
+                }
             }
             .post { ctx: MessageContext -> println("post ${ctx.arguments()}") }
             .build()
@@ -108,7 +121,7 @@ class MeetingAbility : AbilityExtension {
             message.text = "У вас нет активных встреч"
             b.execute(message)
         } else {
-            b.silent().send("Ваш список встреч 📄", update.chatId())
+            b.silent().send("Твой список встреч 📄", update.chatId())
             meetingSet.forEach { meeting ->
                 val inlineKeyboardMarkup = InlineKeyboardMarkup()
                 inlineKeyboardMarkup.keyboard = listOf(

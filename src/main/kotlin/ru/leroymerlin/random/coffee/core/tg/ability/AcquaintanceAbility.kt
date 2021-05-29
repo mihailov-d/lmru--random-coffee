@@ -60,7 +60,7 @@ class AcquaintanceAbility : AbilityExtension {
         val message = SendMessage()
         message.replyMarkup = ReplyKeyboardRemove(true)
         message.chatId = update.stringChatId()
-        message.text = "Введите вашу почту, по которой с вами можно связаться для встречи"
+        message.text = "Введи свою почту, по которой с вами можно связаться для встречи"
         b.execute(message)
 
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_EMAIL)
@@ -70,7 +70,7 @@ class AcquaintanceAbility : AbilityExtension {
         val message = SendMessage()
         message.replyMarkup = ReplyKeyboardRemove(true)
         message.chatId = update.stringChatId()
-        message.text = "Введите ваш телефон, по которому с вами можно связаться для встречи"
+        message.text = "Введи свой телефон, по которому с вами можно связаться для встречи"
         b.execute(message)
 
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_PHONE)
@@ -81,7 +81,7 @@ class AcquaintanceAbility : AbilityExtension {
 
         message.replyMarkup = ReplyKeyboardRemove(true)
         message.chatId = update.stringChatId()
-        message.text = "Введите ваше имя для анкеты"
+        message.text = "Введи свое имя для анкеты"
         b.execute(message)
 
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_NAME)
@@ -91,7 +91,7 @@ class AcquaintanceAbility : AbilityExtension {
         val message = SendMessage()
         message.replyMarkup = ReplyKeyboardRemove(true)
         message.chatId = update.stringChatId()
-        message.text = "Введите вашу фамилию для анкеты"
+        message.text = "Введи свою фамилию для анкеты"
         b.execute(message)
 
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_SURNAME)
@@ -126,7 +126,7 @@ class AcquaintanceAbility : AbilityExtension {
         message.chatId = update.stringChatId()
         // IT THROW EXCEPTION - 400
 //        message.enableMarkdown(true)
-        message.text = "Спасибо, мы сохранили ваш telegram id как контактный: `@$userName`"
+        message.text = "Спасибо, мы сохранили твой telegram id как контактный: `@$userName`"
         b.execute(message)
 
         val userSession = sessionService.getStateByChatId(update.chatId()).let {
@@ -258,7 +258,7 @@ class AcquaintanceAbility : AbilityExtension {
                     replyKeyboardMarkup.keyboard = listOf(
                             keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_SURNAME.command).build())
                     )
-                    message2.text = "Ваше имя для анкеты: $name"
+                    message2.text = "Твое имя для анкеты: $name"
                 }
                 message2.replyMarkup = replyKeyboardMarkup
                 message2.chatId = update.stringChatId()
@@ -292,7 +292,7 @@ class AcquaintanceAbility : AbilityExtension {
                     replyKeyboardMarkup.keyboard = listOf(
                             keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_NAME.command).build())
                     )
-                    message2.text = "Ваша фамилия для анкеты: $surname"
+                    message2.text = "Твоя фамилия для анкеты: $surname"
                 }
                 message2.replyMarkup = replyKeyboardMarkup
                 message2.chatId = update.stringChatId()
@@ -326,7 +326,7 @@ class AcquaintanceAbility : AbilityExtension {
                 }
                 message2.replyMarkup = replyKeyboardMarkup
                 message2.chatId = update.stringChatId()
-                message2.text = "Ваша информация о себе в анкете обновлена"
+                message2.text = "Твоя информация о себе в анкете обновлена"
                 b.execute(message2)
                 sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
             }
@@ -357,7 +357,7 @@ class AcquaintanceAbility : AbilityExtension {
                 }
                 message2.replyMarkup = replyKeyboardMarkup
                 message2.chatId = update.stringChatId()
-                message2.text = "Ваша информация о своей работе в анкете обновлена"
+                message2.text = "Твоя информация о своей работе в анкете обновлена"
                 b.execute(message2)
                 sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
             }
