@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton
 import ru.leroymerlin.random.coffee.core.dto.ChatState
+import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.TopicTypeEnum
 import ru.leroymerlin.random.coffee.core.service.MeetingService
@@ -22,6 +23,7 @@ import ru.leroymerlin.random.coffee.core.service.SessionService
 import ru.leroymerlin.random.coffee.core.service.UserService
 import ru.leroymerlin.random.coffee.core.util.chatId
 import ru.leroymerlin.random.coffee.core.util.keyboardRow
+import ru.leroymerlin.random.coffee.core.util.message.MessageUtil.meetingTopicMessageString
 import ru.leroymerlin.random.coffee.core.util.stringChatId
 import ru.leroymerlin.random.coffee.core.util.textEquals
 import java.time.LocalDate
@@ -88,7 +90,7 @@ class MeetingAbility : AbilityExtension {
 
     fun getListMeetingWithAction(): Reply = Reply.of({ b, update ->
         val sessionDto = sessionService.getStateByChatId(update.chatId())
-        val meetingSet = meetingService.getAllActiveMeetingByUser(sessionDto.userId)
+        val meetingSet = meetingService.getMeetingsForUser(sessionDto.userId, setOf(MeetingStatusEnum.DRAFT, MeetingStatusEnum.ACTIVE))
         if (meetingSet.isEmpty()) {
             val message = SendMessage()
             message.chatId = update.stringChatId()
@@ -98,17 +100,32 @@ class MeetingAbility : AbilityExtension {
         meetingSet.forEach { meeting ->
             val inlineKeyboardMarkup = InlineKeyboardMarkup()
             inlineKeyboardMarkup.keyboard = listOf(
-                listOf(
-                    InlineKeyboardButton.builder().callbackData("meeting_end=" + meeting.id.toString()).text("Завершить встречу").build(),
-                    InlineKeyboardButton.builder().callbackData("meeting_cancel=" + meeting.id.toString()).text("Отменить встречу").build()
-                )
+                    listOf(
+                            InlineKeyboardButton.builder().callbackData("meeting_end=" + meeting.id.toString()).text("Завершить встречу").build(),
+                            InlineKeyboardButton.builder().callbackData("meeting_cancel=" + meeting.id.toString()).text("Отменить встречу").build()
+                    )
             )
             //set user id with who meeting
             val user = userService.getUserById(meeting.userId)
             val message = SendMessage()
             message.replyMarkup = inlineKeyboardMarkup
             message.chatId = update.stringChatId()
-            message.text = "Встреча с : " + user.telegramUsername + "\n" + "Время встречи: " + meeting.preferDate + "\n" + "Тема встречи: " + meeting.topicTypeEnum.name
+            message.text = when (meeting.status) {
+                MeetingStatusEnum.DRAFT -> """
+                    Ищем напарника для коффе
+                    Тема встречи: "${meetingTopicMessageString(meeting.topicTypeEnum)}"
+                    Время встречи: ${meeting.preferDate.toLocalDate()}
+                """.trimIndent()
+                MeetingStatusEnum.ACTIVE -> """
+                    Встреча подтверждена
+                    Тема встречи: "${meetingTopicMessageString(meeting.topicTypeEnum)}"
+                    Время встречи: ${meeting.preferDate.toLocalDate()}
+                """.trimIndent()
+                else -> """
+                    Тема встречи: "${meetingTopicMessageString(meeting.topicTypeEnum)}"
+                    Время встречи: ${meeting.preferDate.toLocalDate()}
+                """.trimIndent()
+            }
 
             b.execute(message)
         }

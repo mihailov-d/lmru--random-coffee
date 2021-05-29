@@ -39,13 +39,17 @@ class MeetingServiceImpl : MeetingService {
         return meetingRepository.save(meetingEntity)
     }
 
+    override fun getMeetingsForUser(userId: UUID, statuses: Set<MeetingStatusEnum>): Set<Meeting> {
+        return statuses.map { meetingRepository.findAllByUserIdAndStatus(userId, it) }.flatten().toSet()
+    }
+
     override fun getAllActiveMeetingByUser(id: UUID): Set<Meeting> {
         return meetingRepository.findAllByUserIdAndStatus(id, MeetingStatusEnum.ACTIVE)
     }
 
     override fun end(id: UUID) {
         val meetingEntity = meetingRepository.findOneById(id)
-            .copy(status = MeetingStatusEnum.FINISHED)
+                .copy(status = MeetingStatusEnum.FINISHED)
         meetingRepository.save(meetingEntity)
     }
 
