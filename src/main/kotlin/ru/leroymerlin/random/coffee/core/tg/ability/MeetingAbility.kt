@@ -52,7 +52,7 @@ class MeetingAbility : AbilityExtension {
                 )
                 message.replyMarkup = replyKeyboardMarkup
                 message.chatId = ctx.update().stringChatId()
-                message.text = "О чем хотите поговорить?"
+                message.text = "О чем хочешь поговорить за кофе?"
                 ctx.bot().execute(message)
                 sessionService.updateChatStateByChatId(ctx.update().chatId(), ChatState.INPUT_MEETING_TOPIC_TYPE)
             }
@@ -75,10 +75,10 @@ class MeetingAbility : AbilityExtension {
         )
         message.replyMarkup = replyKeyboardMarkup
         message.chatId = update.stringChatId()
-        message.text = "О чем хотите поговорить?"
+        message.text = "О чем хочешь поговорить за кофе?"
         b.execute(message)
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_MEETING_TOPIC_TYPE)
-    }, textEquals(CommandList.MEETING_CREATE.command))
+    }, textEquals(CommandList.MEETING_CREATE.command).or(textEquals(CommandList.MEETING_CREATE_FROM_START.command)))
 
 
     fun topicAboutReply(): Reply = Reply.of({ b, update ->
@@ -114,7 +114,7 @@ class MeetingAbility : AbilityExtension {
                     keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_DATE_TOMORROW.command).build()),
                     keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_DATE_AFTER_TOMORROW.command).build())
             )
-            message2.text = "Веберите дату встречи"
+            message2.text = "Выбрать день"
             sessionService.updateChatStateByChatId(chatId, ChatState.INPUT_MEETING_DATE)
         }
         message2.replyMarkup = replyKeyboardMarkup
@@ -157,7 +157,7 @@ class MeetingAbility : AbilityExtension {
                     keyboardRow(KeyboardButton.builder().text(CommandList.MEETING_ABOUT_SOMETHING.command).build())
             )
             message.replyMarkup = replyKeyboardMarkup
-            message.text = "О чем хотите поговорить?"
+            message.text = "О чем хочешь поговорить за кофе?"
             sessionService.updateChatStateByChatId(chatId, ChatState.INPUT_MEETING_TOPIC_TYPE)
         }
         d.execute(message)
