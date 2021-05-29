@@ -6,5 +6,7 @@ enum class MeetingStatusEnum {
     DELETED,
     CANCELLED,
     FINISHED,
-    RANDOM
+    RANDOM,
+    REQUEST,
+    CONFIRMED
 }
