@@ -1,6 +1,7 @@
 package ru.leroymerlin.random.coffee.core.service.impl
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingCreateRequest
@@ -15,6 +16,7 @@ class MeetingServiceImpl : MeetingService {
 
     @Autowired
     internal lateinit var meetingRepository: MeetingRepository
+    override fun get(meetingId: UUID): Meeting = meetingRepository.findOneById(meetingId)
 
     override fun create(createReq: MeetingCreateRequest): Meeting {
         val meeting = Meeting(UUID.randomUUID(),

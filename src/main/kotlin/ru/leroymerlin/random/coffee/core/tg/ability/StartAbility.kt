@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow
 import ru.leroymerlin.random.coffee.core.dto.ChatState
 import ru.leroymerlin.random.coffee.core.dto.request.UserCreateRequest
+import ru.leroymerlin.random.coffee.core.repository.MeetingRepository
 import ru.leroymerlin.random.coffee.core.service.SessionService
 import ru.leroymerlin.random.coffee.core.service.UserService
 import ru.leroymerlin.random.coffee.core.tg.sender.MeetingRequestSender
@@ -27,6 +28,9 @@ class StartAbility : AbilityExtension {
 
     @Autowired
     lateinit var meetingRequestSender: MeetingRequestSender
+
+    @Autowired
+    lateinit var meetingRepository: MeetingRepository
 
     fun startAbility(): Ability {
         return Ability.builder()
@@ -66,8 +70,21 @@ class StartAbility : AbilityExtension {
                         Я бот LM Random Coffee, моя миссия – помогать коллегам найти интересных собеседников за чашечкой кофе!
                     """.trimIndent()
                     ctx.bot().execute(message)
+                }
+                .build()
+    }
 
-                    meetingRequestSender.sendPropose(tgChatId)
+    fun startTestAbility(): Ability {
+        return Ability.builder()
+                .name("start_test")
+                .info("start test")
+                .privacy(Privacy.PUBLIC)
+                .locality(Locality.USER)
+                .action { ctx: MessageContext ->
+                    val tgChatId = ctx.chatId()
+                    val meeting = meetingRepository.findAll().random()
+
+                    meetingRequestSender.sendPropose(tgChatId, meeting.id)
                 }
                 .build()
     }
