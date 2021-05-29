@@ -9,12 +9,15 @@ import org.telegram.abilitybots.api.objects.Privacy
 import org.telegram.abilitybots.api.objects.Reply
 import org.telegram.abilitybots.api.util.AbilityExtension
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton
 import ru.leroymerlin.random.coffee.core.dto.ChatState
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.TopicTypeEnum
+import ru.leroymerlin.random.coffee.core.service.MeetingService
 import ru.leroymerlin.random.coffee.core.service.SessionService
 import ru.leroymerlin.random.coffee.core.service.UserService
 import ru.leroymerlin.random.coffee.core.util.chatId
@@ -30,6 +33,9 @@ import java.util.function.Predicate
 class MeetingAbility : AbilityExtension {
     @Autowired
     lateinit var sessionService: SessionService
+
+    @Autowired
+    lateinit var meetingService: MeetingService
 
     @Autowired
     lateinit var userService: UserService
@@ -80,6 +86,59 @@ class MeetingAbility : AbilityExtension {
         sessionService.updateChatStateByChatId(update.chatId(), ChatState.INPUT_MEETING_TOPIC_TYPE)
     }, textEquals(CommandList.MEETING_CREATE.command).or(textEquals(CommandList.MEETING_CREATE_FROM_START.command)))
 
+    fun getListMeetingWithAction(): Reply = Reply.of({ b, update ->
+        val sessionDto = sessionService.getStateByChatId(update.chatId())
+        val meetingSet = meetingService.getAllActiveMeetingByUser(sessionDto.userId)
+        if (meetingSet.isEmpty()) {
+            val message = SendMessage()
+            message.chatId = update.stringChatId()
+            message.text = "У вас нет активных встреч"
+            b.execute(message)
+        }
+        meetingSet.forEach { meeting ->
+            val inlineKeyboardMarkup = InlineKeyboardMarkup()
+            inlineKeyboardMarkup.keyboard = listOf(
+                listOf(
+                    InlineKeyboardButton.builder().callbackData("meeting_end=" + meeting.id.toString()).text("Завершить встречу").build(),
+                    InlineKeyboardButton.builder().callbackData("meeting_cancel=" + meeting.id.toString()).text("Отменить встречу").build()
+                )
+            )
+            //set user id with who meeting
+            val user = userService.getUserById(meeting.userId)
+            val message = SendMessage()
+            message.replyMarkup = inlineKeyboardMarkup
+            message.chatId = update.stringChatId()
+            message.text = "Встреча с : " + user.telegramUsername + "\n" + "Время встречи: " + meeting.preferDate + "\n" + "Тема встречи: " + meeting.topicTypeEnum.name
+
+            b.execute(message)
+        }
+    }, textEquals(CommandList.MEETING_LIST.command))
+
+    fun endMeeting(): Reply = Reply.of({ b, update ->
+        val sessionDto = sessionService.getStateByChatId(update.chatId())
+        val callbackMap = update.callbackQuery.data.split(",").associate {
+            val (left, right) = it.split("=")
+            left to UUID.fromString(right)
+        }
+        callbackMap["meeting_end"]?.let { meetingService.end(it) }
+        val message = SendMessage()
+        message.chatId = update.stringChatId()
+        message.text = "Встреча закончена, надеюсь тебе понравилось :)"
+        b.execute(message)
+    }, Predicate { update -> update.hasCallbackQuery() && update.callbackQuery.data.contains("meeting_end") })
+
+    fun cancelMeeting(): Reply = Reply.of({ b, update ->
+        val sessionDto = sessionService.getStateByChatId(update.chatId())
+        val callbackMap = update.callbackQuery.data.split(",").associate {
+            val (left, right) = it.split("=")
+            left to UUID.fromString(right)
+        }
+        callbackMap["meeting_cancel"]?.let { meetingService.cancel(it) }
+        val message = SendMessage()
+        message.chatId = update.stringChatId()
+        message.text = "Вы отменили встречу, печаль :("
+        b.execute(message)
+    }, Predicate { update -> update.hasCallbackQuery() && update.callbackQuery.data.contains("meeting_cancel") })
 
     fun topicAboutReply(): Reply = Reply.of({ b, update ->
         val chatId = update.chatId()

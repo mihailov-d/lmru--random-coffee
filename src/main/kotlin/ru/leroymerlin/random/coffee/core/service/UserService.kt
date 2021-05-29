@@ -14,6 +14,7 @@ interface UserService {
 
     fun getByTelegramUserId(telegramUserId: TgUserId): User?
     fun get(userId: UUID): User
+    fun getUserById(id: UUID): User
 
     // Update user
     fun update(updateReq: UserBasicUpdateRequest): User

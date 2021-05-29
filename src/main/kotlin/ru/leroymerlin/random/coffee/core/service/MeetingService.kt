@@ -12,13 +12,12 @@ interface MeetingService {
 
     // Create meeting
     fun create(createReq: MeetingCreateRequest): Meeting
-
     // Update meeting
     fun update(updateReq: MeetingUpdateRequest): Meeting
-
+    fun getAllActiveMeetingByUser(id: UUID):  Set<Meeting>
+    fun end(id: UUID)
     // Cancel meeting
     fun cancel(id: UUID)
-
     // Delete meeting
     fun delete(id: UUID)
 }

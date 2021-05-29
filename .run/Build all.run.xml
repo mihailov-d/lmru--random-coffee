@@ -1,7 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Build all" type="CompoundRunConfigurationType">
-    <toRun name="Build image" type="docker-deploy" />
-    <toRun name="Build app" type="MavenRunConfiguration" />
-    <method v="2" />
-  </configuration>
-</component>

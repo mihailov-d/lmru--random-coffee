@@ -2,3 +2,10 @@ spring:
   cloud:
     vault:
       enabled: false
+  data:
+    mongodb:
+      uri: mongodb://root:example-root@mongo:27017/cvdb?authSource=admin
+opentracing:
+  jaeger:
+    udp-sender:
+      host: jaeger-agent
