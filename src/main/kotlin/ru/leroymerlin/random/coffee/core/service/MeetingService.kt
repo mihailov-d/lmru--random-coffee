@@ -11,8 +11,6 @@ import java.util.UUID
 interface MeetingService {
     // Create meeting
     fun create(createReq: MeetingCreateRequest): Meeting
-    // Update meeting
-    fun update(updateReq: MeetingUpdateRequest): Meeting
     // FIXME Change type to List from Set
     fun getAllActiveMeetingByUser(id: UUID):  Set<Meeting>
     fun end(id: UUID)

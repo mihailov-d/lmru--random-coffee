@@ -5,5 +5,4 @@ import ru.leroymerlin.random.coffee.core.model.Meeting
 interface RandomService {
 
     fun random(meeting: Meeting)
-    fun pool(meeting: Meeting)
 }

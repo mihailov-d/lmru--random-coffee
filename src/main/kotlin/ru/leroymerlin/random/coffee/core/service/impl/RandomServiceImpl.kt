@@ -13,11 +13,12 @@ class RandomServiceImpl(
     private val userService: UserService,
     private val meetingService: MeetingService
 ): RandomService {
+
+
+
     override fun random(meeting: Meeting) {
         TODO("Not yet implemented")
     }
 
-    override fun pool(meeting: Meeting) {
-        TODO("Not yet implemented")
-    }
+
 }

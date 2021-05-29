@@ -38,23 +38,10 @@ class MeetingServiceImpl(
             createReq.userId,
             topicTypeEnum = createReq.topicTypeEnum,
             // TODO when save in mongo we have minus 3 hours, because Moscow zoneID !!!!!
-            preferDate = createReq.preferDate.atTime(12, 0)
+            preferDate = createReq.preferDate.atTime(12, 0),
+            status = RANDOM
         )
-
         return meetingRepository.save(meeting)
-    }
-
-    override fun update(updateReq: MeetingUpdateRequest): Meeting {
-        val meetingEntity = meetingRepository.findOneById(updateReq.id)
-            .copy(
-                aim = updateReq.aim,
-                comment = updateReq.comment,
-                location = updateReq.location,
-                locationType = updateReq.locationType,
-                editedDate = LocalDateTime.now()
-            )
-
-        return meetingRepository.save(meetingEntity)
     }
 
     override fun getAllActiveMeetingByUser(id: UUID): Set<Meeting> {
@@ -101,7 +88,7 @@ class MeetingServiceImpl(
     override fun random(id: UUID): Meeting {
         val meeting = meetingRepository.findOneById(id)
         if ((meeting.status == RANDOM && meeting.requestToMeetingId != null)
-            || (meeting.status == REQUEST) && meeting.status in PROHIBITED_STATUSES
+            || (meeting.status == REQUEST) || meeting.status in PROHIBITED_STATUSES
         ) {
             log.debug("Cannot update status of meeting $id from ${meeting.status} to $RANDOM")
             throw CannotUpdateMeetingException(meeting.status, RANDOM)
