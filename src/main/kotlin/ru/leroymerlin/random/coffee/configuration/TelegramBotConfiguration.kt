@@ -15,12 +15,16 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession
 class TelegramBotConfiguration {
 
     @Bean
-    fun telegramBot(@Value("\${telegram-bot.username}") botUsername: String,
-                    @Value("\${telegram-bot.token}") botToken: String,
-                    abilities: List<AbilityExtension>): TelegramBotsApi {
+    fun randomCoffeeBot(@Value("\${telegram-bot.username}") botUsername: String,
+                        @Value("\${telegram-bot.token}") botToken: String,
+                        abilities: List<AbilityExtension>): RandomCoffeeBot {
+        return RandomCoffeeBot(botUsername, botToken, abilities)
+    }
+
+    @Bean
+    fun telegramBot(randomCoffeeBot: RandomCoffeeBot): TelegramBotsApi {
         val tg = TelegramBotsApi(DefaultBotSession::class.java)
-        val telegramLongPollingBot = RandomCoffeeBot(botUsername, botToken, abilities)
-        tg.registerBot(telegramLongPollingBot)
+        tg.registerBot(randomCoffeeBot)
         return tg
     }
 }
