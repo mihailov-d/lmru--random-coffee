@@ -68,15 +68,15 @@ class MeetingAbility : AbilityExtension {
             .build()
 
     fun getListMeeting(): Ability = Ability.builder()
-        .name("meeting_list")
-        .info("Get All active")
-        .privacy(Privacy.PUBLIC)
-        .locality(Locality.USER)
-        .input(0)
-        .action { ctx: MessageContext ->
-            getListMeetingWithAction().action.accept(ctx.bot(), ctx.update())
-        }
-        .build()
+            .name("meeting_list")
+            .info("Get All active")
+            .privacy(Privacy.PUBLIC)
+            .locality(Locality.USER)
+            .input(0)
+            .action { ctx: MessageContext ->
+                getListMeetingWithAction().action.accept(ctx.bot(), ctx.update())
+            }
+            .build()
 
     fun createMeeting(): Reply = Reply.of({ b, update ->
         sessionService.getStateByChatId(update.chatId()).apply {

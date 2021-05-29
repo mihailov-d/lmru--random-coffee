@@ -6,7 +6,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 import ru.leroymerlin.random.coffee.configuration.RandomCoffeeBot
-import ru.leroymerlin.random.coffee.core.dto.request.TopicTypeEnum
 import ru.leroymerlin.random.coffee.core.service.MeetingService
 import ru.leroymerlin.random.coffee.core.service.SessionService
 import ru.leroymerlin.random.coffee.core.service.UserService
@@ -82,6 +81,30 @@ class MeetingRequestSender {
             Свяжитесь друг с другом по указанным контактным данным NULL
         """.trimIndent()
         messageToMeetingCreator.enableMarkdown(true)
+        randomCoffeeBot.execute(messageToMeetingCreator)
+    }
+
+    fun cancelMeetingMessage(meetingId: UUID, targetChatId: TgChatId) {
+        val meeting = meetingService.get(meetingId)
+        // TODO logic with who meeting end
+
+        val targetSession = sessionService.getStateByChatId(targetChatId)
+        val targetUser = userService.get(targetSession.userId)
+        val meetingCreatorUser = userService.get(meeting.userId)
+        val meetingCreatorSession = sessionService.getState(meetingCreatorUser.telegramUserId!!)!!
+
+        val userAddressat = if (meetingCreatorSession.telegramChatId == targetChatId) {
+            targetUser
+        } else {
+            meetingCreatorUser
+        }
+
+        val messageToMeetingCreator = SendMessage()
+        messageToMeetingCreator.chatId = targetChatId.toString()
+        messageToMeetingCreator.text = """
+            Встреча с пользователем "${userAddressat.name} ${userAddressat.surname}" на ${meeting.preferDate.toLocalDate()} отменена.
+        """.trimIndent()
+//        messageToMeetingCreator.enableMarkdown(true)
         randomCoffeeBot.execute(messageToMeetingCreator)
     }
 }
