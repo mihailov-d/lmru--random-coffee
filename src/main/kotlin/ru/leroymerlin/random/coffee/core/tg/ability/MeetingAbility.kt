@@ -74,36 +74,8 @@ class MeetingAbility : AbilityExtension {
         .locality(Locality.USER)
         .input(0)
         .action { ctx: MessageContext ->
-            val sessionDto = sessionService.getStateByChatId(ctx.update().chatId())
-            val meetingSet = meetingService.getAllActiveMeetingByUser(sessionDto.userId)
-            if (meetingSet.isEmpty()) {
-                val message = SendMessage()
-                message.chatId = ctx.update().stringChatId()
-                message.text = "У вас нет активных встреч"
-                ctx.bot().execute(message)
-            }
-            meetingSet.forEach { meeting ->
-                val inlineKeyboardMarkup = InlineKeyboardMarkup()
-                inlineKeyboardMarkup.keyboard = listOf(
-                    listOf(
-                        InlineKeyboardButton.builder().callbackData("meeting_end=" + meeting.id.toString())
-                            .text("Завершить встречу").build(),
-                        InlineKeyboardButton.builder().callbackData("meeting_cancel=" + meeting.id.toString())
-                            .text("Отменить встречу").build()
-                    )
-                )
-                //set user id with who meeting
-                val user = userService.getUserById(meeting.userId)
-                val message = SendMessage()
-                message.replyMarkup = inlineKeyboardMarkup
-                message.chatId = ctx.update().stringChatId()
-                message.text =
-                    "Встреча с : " + user.telegramUsername + "\n" + "Время встречи: " + meeting.preferDate + "\n" + "Тема встречи: " + meeting.topicTypeEnum.name
-
-                ctx.bot().execute(message)
-            }
+            getListMeetingWithAction().action.accept(ctx.bot(), ctx.update())
         }
-        .post { ctx: MessageContext -> println("post ${ctx.arguments()}") }
         .build()
 
     fun createMeeting(): Reply = Reply.of({ b, update ->
@@ -135,39 +107,41 @@ class MeetingAbility : AbilityExtension {
             message.chatId = update.stringChatId()
             message.text = "У вас нет активных встреч"
             b.execute(message)
-        }
-        meetingSet.forEach { meeting ->
-            val inlineKeyboardMarkup = InlineKeyboardMarkup()
-            inlineKeyboardMarkup.keyboard = listOf(
-                    listOf(
-                            InlineKeyboardButton.builder().callbackData("meeting_end=" + meeting.id.toString()).text("Завершить встречу").build(),
-                            InlineKeyboardButton.builder().callbackData("meeting_cancel=" + meeting.id.toString()).text("Отменить встречу").build()
-                    )
-            )
-            //set user id with who meeting
-            val user = userService.getUserById(meeting.userId)
-            val message = SendMessage()
-            message.replyMarkup = inlineKeyboardMarkup
-            message.chatId = update.stringChatId()
-            message.text = when (meeting.status) {
-                MeetingStatusEnum.DRAFT -> """
-                    Ищем напарника для коффе
+        } else {
+            b.silent().send("Ваш список встреч 📄", update.chatId())
+            meetingSet.forEach { meeting ->
+                val inlineKeyboardMarkup = InlineKeyboardMarkup()
+                inlineKeyboardMarkup.keyboard = listOf(
+                        listOf(
+                                InlineKeyboardButton.builder().callbackData("meeting_end=" + meeting.id.toString()).text("Завершить встречу").build(),
+                                InlineKeyboardButton.builder().callbackData("meeting_cancel=" + meeting.id.toString()).text("Отменить встречу").build()
+                        )
+                )
+                //set user id with who meeting
+                val user = userService.getUserById(meeting.userId)
+                val message = SendMessage()
+                message.replyMarkup = inlineKeyboardMarkup
+                message.chatId = update.stringChatId()
+                message.text = when (meeting.status) {
+                    MeetingStatusEnum.DRAFT -> """
+                    Ищем напарника для коффе 🔎
                     Тема встречи: "${meetingTopicMessageString(meeting.topicTypeEnum)}"
                     Время встречи: ${meeting.preferDate.toLocalDate()}
                 """.trimIndent()
-                MeetingStatusEnum.ACTIVE -> """
-                    Встреча подтверждена
+                    MeetingStatusEnum.ACTIVE -> """
+                    Встреча подтверждена ✅
                     Тема встречи: "${meetingTopicMessageString(meeting.topicTypeEnum)}"
                     Время встречи: ${meeting.preferDate.toLocalDate()}
                 """.trimIndent()
-                else -> """
+                    else -> """
                     Тема встречи: "${meetingTopicMessageString(meeting.topicTypeEnum)}"
                     Время встречи: ${meeting.preferDate.toLocalDate()}
                 """.trimIndent()
+                }
+                b.execute(message)
             }
-
-            b.execute(message)
         }
+
     }, textEquals(CommandList.MEETING_LIST.command))
 
     fun endMeeting(): Reply = Reply.of({ b, update ->
