@@ -121,7 +121,7 @@ class MeetingAbility : AbilityExtension {
             message.text = "У вас нет активных встреч"
             b.execute(message)
         } else {
-            b.silent().send("Ваш список встреч 📄", update.chatId())
+            b.silent().send("Твой список встреч 📄", update.chatId())
             meetingSet.forEach { meeting ->
                 val inlineKeyboardMarkup = InlineKeyboardMarkup()
                 inlineKeyboardMarkup.keyboard = listOf(
