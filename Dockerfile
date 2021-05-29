@@ -20,7 +20,8 @@ COPY ./target/docker-image-source/BOOT-INF/classes /application/BOOT-INF/classes
 COPY ./target/docker-image-source/META-INF /application/META-INF
 
 COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+WORKDIR /application
+RUN chmod +x /entrypoint.sh && chown daemon: /application
 
 USER daemon
 
