@@ -41,7 +41,6 @@ class MeetingRequestAbility : AbilityExtension {
         val meeting = meetingService.get(meetingId)
 
         val userCreatedMeeting = userService.get(meeting.userId)
-        var otherUser = userService.get(if (meeting.status == RANDOM) meeting.requestFromMeetingId!! else meeting.requestToMeetingId!!)
 
         val editMessageText = EditMessageText()
         editMessageText.chatId = update.stringChatId()

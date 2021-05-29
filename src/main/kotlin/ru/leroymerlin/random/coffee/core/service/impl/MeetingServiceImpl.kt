@@ -37,12 +37,12 @@ class MeetingServiceImpl(
 
     override fun create(createReq: MeetingCreateRequest): Meeting {
         val meeting = Meeting(
-            UUID.randomUUID(),
-            createReq.userId,
-            topicTypeEnum = createReq.topicTypeEnum,
-            // TODO when save in mongo we have minus 3 hours, because Moscow zoneID !!!!!
-            preferDate = createReq.preferDate.atTime(12, 0),
-            status = RANDOM
+                UUID.randomUUID(),
+                createReq.userId,
+                topicTypeEnum = createReq.topicTypeEnum,
+                // TODO when save in mongo we have minus 3 hours, because Moscow zoneID !!!!!
+                preferDate = createReq.preferDate.atTime(12, 0),
+                status = RANDOM
         )
         return meetingRepository.save(meeting)
     }
@@ -57,29 +57,29 @@ class MeetingServiceImpl(
     }
 
     override fun findAllActiveByPreferDateAndTopicTypeEnum(
-        preferDate: LocalDateTime,
-        topicTypeEnum: TopicTypeEnum
+            preferDate: LocalDateTime,
+            topicTypeEnum: TopicTypeEnum
     ): List<Meeting> {
         val startDate = LocalDateTime.of(preferDate.toLocalDate(), LocalTime.MIN)
         val endDate = LocalDateTime.of(preferDate.toLocalDate(), LocalTime.MAX)
         return meetingRepository.findAllByStatusAndTopicTypeEnumAndPreferDateBetween(
-            ACTIVE,
-            topicTypeEnum,
-            startDate,
-            endDate
+                ACTIVE,
+                topicTypeEnum,
+                startDate,
+                endDate
         )
     }
 
     override fun end(id: UUID) {
         val meetingEntity = meetingRepository.findOneById(id)
-            .copy(status = MeetingStatusEnum.FINISHED, editedDate = LocalDateTime.now())
+                .copy(status = MeetingStatusEnum.FINISHED, editedDate = LocalDateTime.now())
         // TODO send message to other interlocutor
         meetingRepository.save(meetingEntity)
     }
 
     override fun cancel(id: UUID) {
         val meetingEntity = meetingRepository.findOneById(id)
-            .copy(status = MeetingStatusEnum.CANCELLED, editedDate = LocalDateTime.now())
+                .copy(status = MeetingStatusEnum.CANCELLED, editedDate = LocalDateTime.now())
         // TODO send message to other interlocutor if exist
         meetingRepository.save(meetingEntity)
     }
@@ -87,7 +87,7 @@ class MeetingServiceImpl(
     override fun delete(id: UUID) {
         // FIXME maybe it does not need
         meetingRepository.save(
-            meetingRepository.findOneById(id).copy(status = DELETED, editedDate = LocalDateTime.now())
+                meetingRepository.findOneById(id).copy(status = DELETED, editedDate = LocalDateTime.now())
         )
     }
 
@@ -98,19 +98,19 @@ class MeetingServiceImpl(
             throw CannotUpdateMeetingException(meeting.status, ACTIVE)
         }
         return meetingRepository.save(
-            meeting.copy(
-                status = ACTIVE,
-                requestFromMeetingId = null,
-                requestToMeetingId = null,
-                editedDate = LocalDateTime.now()
-            )
+                meeting.copy(
+                        status = ACTIVE,
+                        requestFromMeetingId = null,
+                        requestToMeetingId = null,
+                        editedDate = LocalDateTime.now()
+                )
         )
     }
 
     override fun random(id: UUID): Meeting {
         val meeting = meetingRepository.findOneById(id)
         if ((meeting.status == RANDOM && meeting.requestToMeetingId != null)
-            || (meeting.status == REQUEST) || meeting.status in PROHIBITED_STATUSES
+                || (meeting.status == REQUEST) || meeting.status in PROHIBITED_STATUSES
         ) {
             log.debug("Cannot update status of meeting $id from ${meeting.status} to $RANDOM")
             throw CannotUpdateMeetingException(meeting.status, RANDOM)
@@ -122,11 +122,11 @@ class MeetingServiceImpl(
         val meeting = meetingRepository.findOneById(updateReq.id)
         if (meeting.status == ACTIVE) {
             return meetingRepository.save(
-                meeting.copy(
-                    requestFromMeetingId = updateReq.requestFromMeetingId,
-                    status = REQUEST,
-                    editedDate = LocalDateTime.now()
-                )
+                    meeting.copy(
+                            requestFromMeetingId = updateReq.requestFromMeetingId,
+                            status = REQUEST,
+                            editedDate = LocalDateTime.now()
+                    )
             )
         }
         log.debug("Cannot update status of meeting ${updateReq.id} from ${meeting.status} to $REQUEST")
@@ -137,10 +137,10 @@ class MeetingServiceImpl(
         val meeting = meetingRepository.findOneById(updateReq.id)
         if (meeting.status == RANDOM) {
             return meetingRepository.save(
-                meeting.copy(
-                    requestToMeetingId = updateReq.requestToMeetingId,
-                    editedDate = LocalDateTime.now()
-                )
+                    meeting.copy(
+                            requestToMeetingId = updateReq.requestToMeetingId,
+                            editedDate = LocalDateTime.now()
+                    )
             )
         }
         log.debug("Cannot update status of meeting ${updateReq.id} from ${meeting.status} to ${RANDOM}")
@@ -151,11 +151,11 @@ class MeetingServiceImpl(
         val meeting = meetingRepository.findOneById(updateReq.id)
         if (meeting.status in setOf(RANDOM, REQUEST)) {
             return meetingRepository.save(
-                meeting.copy(
-                    linkMeetingId = updateReq.requestLinkMeetingId,
-                    status = CONFIRMED,
-                    editedDate = LocalDateTime.now()
-                )
+                    meeting.copy(
+                            linkMeetingId = updateReq.requestLinkMeetingId,
+                            status = CONFIRMED,
+                            editedDate = LocalDateTime.now()
+                    )
             )
         }
         log.debug("Cannot update status of meeting ${updateReq.id} from ${meeting.status} to $CONFIRMED")

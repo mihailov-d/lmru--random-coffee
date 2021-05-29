@@ -3,11 +3,13 @@ package ru.leroymerlin.random.coffee.core.service.impl
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum
 import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum.RANDOM
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingLinkUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingRequestFromUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingRequestToUpdateRequest
 import ru.leroymerlin.random.coffee.core.model.Meeting
+import ru.leroymerlin.random.coffee.core.repository.MeetingRepository
 import ru.leroymerlin.random.coffee.core.service.MeetingService
 import ru.leroymerlin.random.coffee.core.service.RandomService
 import ru.leroymerlin.random.coffee.core.service.SessionService
@@ -19,6 +21,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.SECONDS
+import javax.annotation.PostConstruct
 
 @Service
 class RandomServiceImpl : RandomService {
@@ -29,12 +32,18 @@ class RandomServiceImpl : RandomService {
 
     @Autowired
     private lateinit var sessionService: SessionService
+
     @Autowired
     private lateinit var userService: UserService
+
     @Autowired
     private lateinit var meetingService: MeetingService
+
     @Autowired
     private lateinit var meetingRequestSender: MeetingRequestSender
+
+    @Autowired
+    private lateinit var meetingRepository: MeetingRepository
 
     val executorService: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
     val randomMeetingQueue = LinkedBlockingQueue<Meeting>()
@@ -42,6 +51,14 @@ class RandomServiceImpl : RandomService {
     init {
         executorService.schedule(::loadRandom, 10, SECONDS)
         executorService.scheduleWithFixedDelay(::process, 15, 10, TimeUnit.SECONDS)
+    }
+
+    @PostConstruct
+    fun init() {
+        meetingRepository.findAll().filter { it.status == MeetingStatusEnum.DRAFT }.forEach {
+            val updatedMeeting = meetingRepository.save(it.copy(status = RANDOM))
+            random(updatedMeeting)
+        }
     }
 
     override fun random(meeting: Meeting) {
@@ -52,28 +69,29 @@ class RandomServiceImpl : RandomService {
         while (!randomMeetingQueue.isNullOrEmpty()) {
             val randomMeeting = randomMeetingQueue.poll(1, SECONDS)
             val expectedMeetings = meetingService.findAllActiveByPreferDateAndTopicTypeEnum(
-                randomMeeting.preferDate,
-                randomMeeting.topicTypeEnum
+                    randomMeeting.preferDate,
+                    randomMeeting.topicTypeEnum
             ).toSet()
             if (expectedMeetings.isEmpty()) {
                 meetingService.active(randomMeeting.id)
                 break
             }
-            val requestMeeting = expectedMeetings.first { it.userId != randomMeeting.userId }
-            try {
-                meetingService.update(MeetingRequestFromUpdateRequest(requestMeeting.id, randomMeeting.id))
-                log.info("Send request to meeting ${requestMeeting.id}")
-            } catch (ex: Exception) {
-                meetingService.active(randomMeeting.id)
-                continue
+            expectedMeetings.firstOrNull { it.userId != randomMeeting.userId }?.let { requestMeeting ->
+                try {
+                    meetingService.update(MeetingRequestFromUpdateRequest(requestMeeting.id, randomMeeting.id))
+                    log.info("Send request to meeting ${requestMeeting.id}")
+                } catch (ex: Exception) {
+                    meetingService.active(randomMeeting.id)
+                    false
+                }
+                meetingService.update(MeetingRequestToUpdateRequest(randomMeeting.id, requestMeeting.id))
+                val randomUser = userService.getUserById(randomMeeting.userId)
+                val requestUser = userService.getUserById(requestMeeting.userId)
+                val randomUserSession = sessionService.getState(randomUser.telegramUserId!!)
+                val requestUserSession = sessionService.getState(requestUser.telegramUserId!!)
+                meetingRequestSender.sendPropose(requestUserSession!!.telegramChatId, randomMeeting.id)
+                true
             }
-            meetingService.update(MeetingRequestToUpdateRequest(randomMeeting.id, requestMeeting.id))
-            val randomUser = userService.getUserById(randomMeeting.userId)
-            val requestUser = userService.getUserById(requestMeeting.userId)
-            val randomUserSession = sessionService.getState(randomUser.telegramUserId!!)
-            val requestUserSession = sessionService.getState(requestUser.telegramUserId!!)
-            meetingRequestSender.sendPropose(requestUserSession!!.telegramChatId, randomMeeting.id)
-
         }
         log.info("Finish random process")
     }
