@@ -19,7 +19,8 @@ enum class CommandList(val command: String) {
     MEETING_DATE_TOMORROW("Завтра"),
     MEETING_DATE_AFTER_TOMORROW("Послезавтра"),
 
-    MATCH_MEETING_START("Найти собеседника на кофе!");
+    MATCH_MEETING_START("Найти собеседника на кофе!"),
+    MEETING_LIST("Список моих встреч");
 
     companion object {
         init {

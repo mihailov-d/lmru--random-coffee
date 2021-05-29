@@ -27,6 +27,7 @@ class AcquaintanceAbility : AbilityExtension {
     @Autowired
     lateinit var sessionService: SessionService
 
+
     @Autowired
     lateinit var userService: UserService
 
@@ -77,6 +78,7 @@ class AcquaintanceAbility : AbilityExtension {
 
     fun typeInputNameReply(): Reply = Reply.of({ b, update ->
         val message = SendMessage()
+
         message.replyMarkup = ReplyKeyboardRemove(true)
         message.chatId = update.stringChatId()
         message.text = "Введите ваше имя для анкеты"

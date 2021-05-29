@@ -13,6 +13,7 @@ interface UserService {
     fun create(createReq: UserCreateRequest): User
 
     fun getByTelegramUserId(telegramUserId: TgUserId): User?
+    fun getUserById(id: UUID): User
 
     // Update user
     fun update(updateReq: UserBasicUpdateRequest): User
