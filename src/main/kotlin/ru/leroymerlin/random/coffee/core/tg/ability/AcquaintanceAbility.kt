@@ -32,6 +32,15 @@ class AcquaintanceAbility : AbilityExtension {
 
     fun fillCardReply(): Reply {
         return Reply.of({ b, update ->
+            sessionService.getStateByChatId(update.chatId()).apply {
+                sessionService.saveState(this.copy(
+                        draftCommunicationUser = null,
+                        draftAboutUser = null,
+                        draftBasicUser = null,
+                        currentChatState = ChatState.NONE
+                ))
+            }
+
             val message = SendMessage()
             val replyKeyboardMarkup = ReplyKeyboardMarkup()
             replyKeyboardMarkup.keyboard = listOf(
@@ -41,9 +50,9 @@ class AcquaintanceAbility : AbilityExtension {
             )
             message.replyMarkup = replyKeyboardMarkup
             message.chatId = update.stringChatId()
-            message.text = "Выберите наиболее удобный связи с тобой"
+            message.text = """Выбери наиболее удобный способ связи с тобой"""
             b.execute(message)
-        }, textEquals("Заполнить карточку"))
+        }, textEquals(CommandList.ACQUAINTANCE_FILL_CARD.command).or(textEquals(CommandList.ACQUAINTANCE_FILL_CARD_NEW_USER.command)))
     }
 
     fun typeEmailReply(): Reply = Reply.of({ b, update ->
@@ -242,14 +251,15 @@ class AcquaintanceAbility : AbilityExtension {
                             keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_ABOUT_WORK.command).build())
                     )
                     userService.update(userSession.draftBasicUser!!)
+                    message2.text = """Расскажи немного о себе. О чём хочешь рассказать?"""
                 } else {
                     replyKeyboardMarkup.keyboard = listOf(
                             keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_SURNAME.command).build())
                     )
+                    message2.text = "Ваше имя для анкеты: $name"
                 }
                 message2.replyMarkup = replyKeyboardMarkup
                 message2.chatId = update.stringChatId()
-                message2.text = "Ваше имя для анкеты: $name"
                 b.execute(message2)
                 sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
             }
@@ -275,14 +285,15 @@ class AcquaintanceAbility : AbilityExtension {
                             keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_ABOUT_WORK.command).build())
                     )
                     userService.update(userSession.draftBasicUser!!)
+                    message2.text = """Расскажи немного о себе. О чём хочешь рассказать?"""
                 } else {
                     replyKeyboardMarkup.keyboard = listOf(
                             keyboardRow(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_INPUT_NAME.command).build())
                     )
+                    message2.text = "Ваша фамилия для анкеты: $surname"
                 }
                 message2.replyMarkup = replyKeyboardMarkup
                 message2.chatId = update.stringChatId()
-                message2.text = "Ваша фамилия для анкеты: $surname"
                 b.execute(message2)
                 sessionService.updateChatStateByChatId(chatId, ChatState.NONE)
             }
@@ -355,13 +366,13 @@ class AcquaintanceAbility : AbilityExtension {
         }
 
     }, Predicate { update ->
-        setOf(
-                CommandList.ACQUAINTANCE_INPUT_EMAIL.command, CommandList.ACQUAINTANCE_INPUT_PHONE.command, CommandList.ACQUAINTANCE_INPUT_NAME.command, CommandList.ACQUAINTANCE_INPUT_SURNAME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_ME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_WORK.command
-        ).contains(update.message.text).not() &&
-                sessionService.getStateByChatId(update.chatId()).let {
-                    setOf(ChatState.INPUT_EMAIL, ChatState.INPUT_PHONE,
-                            ChatState.INPUT_NAME, ChatState.INPUT_SURNAME,
-                            ChatState.INPUT_ABOUT_JOB, ChatState.INPUT_ABOUT_ME).contains(it.currentChatState)
-                }
+(update.hasMessage() && setOf(
+        CommandList.ACQUAINTANCE_INPUT_EMAIL.command, CommandList.ACQUAINTANCE_INPUT_PHONE.command, CommandList.ACQUAINTANCE_INPUT_NAME.command, CommandList.ACQUAINTANCE_INPUT_SURNAME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_ME.command, CommandList.ACQUAINTANCE_INPUT_ABOUT_WORK.command
+).contains(update.message.text).not()) &&
+        sessionService.getStateByChatId(update.chatId()).let {
+            setOf(ChatState.INPUT_EMAIL, ChatState.INPUT_PHONE,
+                    ChatState.INPUT_NAME, ChatState.INPUT_SURNAME,
+                    ChatState.INPUT_ABOUT_JOB, ChatState.INPUT_ABOUT_ME).contains(it.currentChatState)
+        }
     })
 }

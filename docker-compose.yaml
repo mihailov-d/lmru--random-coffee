@@ -1,5 +1,19 @@
 version: '3.3'
 services:
+  random-coffee:
+    image: docker-local-cr.art.lmru.tech/random-coffee:$IMAGE_VERSION
+    environment:
+      PORT: 8080
+      SPRING_PROFILES_ACTIVE: $APP_PROFILE
+      TELEGRAM_USERNAME: $TELEGRAM_USERNAME
+      TELEGRAM_TOKEN: $TELEGRAM_TOKEN
+    ports:
+      - 8080
+    depends_on:
+      - mongo
+      - jaeger-collector
+      - jaeger-agent
+
   mongo:
     container_name: random-coffe-lmru
     image: docker-remote-docker-io.art.lmru.tech/mongo:4.4

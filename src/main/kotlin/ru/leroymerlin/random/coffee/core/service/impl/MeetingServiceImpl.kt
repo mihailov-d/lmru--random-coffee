@@ -20,7 +20,8 @@ class MeetingServiceImpl : MeetingService {
         val meeting = Meeting(UUID.randomUUID(),
                 createReq.userId,
                 topicTypeEnum = createReq.topicTypeEnum,
-                preferDate = createReq.preferDate
+                // TODO when save in mongo we have minus 3 hours, because Moscow zoneID !!!!!
+                preferDate = createReq.preferDate.atTime(12, 0)
         )
 
         return meetingRepository.save(meeting)

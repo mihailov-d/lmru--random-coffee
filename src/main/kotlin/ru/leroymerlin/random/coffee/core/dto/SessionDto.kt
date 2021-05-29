@@ -30,6 +30,22 @@ data class SessionDto(
         return it.aboutJob.isNullOrBlank().not() && it.aboutMe.isNullOrBlank().not()
     } ?: false
 
+    fun isCommunicationFill(): Boolean = draftCommunicationUser?.let { communicationRequest ->
+        return communicationRequest.preferCommunications != null && communicationRequest.preferCommunications.isNotEmpty()
+                && communicationRequest.preferCommunications
+                .first().let {
+                    when (it) {
+                        UserPreferCommunicationEnum.EMAIL -> communicationRequest.email.isNullOrBlank().not()
+                        UserPreferCommunicationEnum.PHONE -> communicationRequest.phone.isNullOrBlank().not()
+                        UserPreferCommunicationEnum.TELEGRAM -> communicationRequest.telegramUsername.isNullOrBlank().not()
+                        else -> {
+                            println("Invalid 'UserPreferCommunicationEnum' $it")
+                            return false
+                        }
+                    }
+                }
+    } ?: false
+
     fun isMeetingFill(): Boolean = draftMeeting?.let {
         return it.topicType != null && it.preferDate != null
     } ?: false

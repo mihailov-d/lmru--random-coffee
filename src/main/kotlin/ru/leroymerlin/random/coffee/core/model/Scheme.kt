@@ -14,7 +14,6 @@ import ru.leroymerlin.random.coffee.core.dto.request.UserBasicUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.UserCommunicationsUpdateRequest
 import ru.leroymerlin.random.coffee.core.util.TgChatId
 import ru.leroymerlin.random.coffee.core.util.TgUserId
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -56,7 +55,8 @@ import java.util.UUID
         val createdDate: LocalDateTime = LocalDateTime.now(),
         val editedDate: LocalDateTime = LocalDateTime.now(),
         val topicTypeEnum: TopicTypeEnum,
-        val preferDate: LocalDate,
+        // cause problem when save LocalDate in mongo
+        val preferDate: LocalDateTime,
         val aim: String? = null,
         val comment: String? = null,
         val locationType: LocationTypeEnum? = null,
