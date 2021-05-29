@@ -51,7 +51,7 @@ class StartAbility : AbilityExtension {
                             telegramChatId = tgChatId,
                             currentChatState = ChatState.NONE
                     ))
-                    val profileIsFill = currentSession.isAboutFill() && currentSession.isCommunicationFill() && currentSession.isNameAndSurnameFill()
+                    val profileIsFill = currentSession.isProfileFill()
 
                     val message = SendMessage()
                     val replyKeyboardMarkup = ReplyKeyboardMarkup()

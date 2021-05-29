@@ -49,4 +49,6 @@ data class SessionDto(
     fun isMeetingFill(): Boolean = draftMeeting?.let {
         return it.topicType != null && it.preferDate != null
     } ?: false
+
+    fun isProfileFill(): Boolean = isAboutFill() && isCommunicationFill() && isNameAndSurnameFill()
 }
