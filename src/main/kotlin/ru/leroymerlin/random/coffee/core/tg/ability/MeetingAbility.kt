@@ -67,6 +67,45 @@ class MeetingAbility : AbilityExtension {
             .post { ctx: MessageContext -> println("post ${ctx.arguments()}") }
             .build()
 
+    fun getListMeeting(): Ability = Ability.builder()
+        .name("meeting_list")
+        .info("Get All active")
+        .privacy(Privacy.PUBLIC)
+        .locality(Locality.USER)
+        .input(0)
+        .action { ctx: MessageContext ->
+            val sessionDto = sessionService.getStateByChatId(ctx.update().chatId())
+            val meetingSet = meetingService.getAllActiveMeetingByUser(sessionDto.userId)
+            if (meetingSet.isEmpty()) {
+                val message = SendMessage()
+                message.chatId = ctx.update().stringChatId()
+                message.text = "У вас нет активных встреч"
+                ctx.bot().execute(message)
+            }
+            meetingSet.forEach { meeting ->
+                val inlineKeyboardMarkup = InlineKeyboardMarkup()
+                inlineKeyboardMarkup.keyboard = listOf(
+                    listOf(
+                        InlineKeyboardButton.builder().callbackData("meeting_end=" + meeting.id.toString())
+                            .text("Завершить встречу").build(),
+                        InlineKeyboardButton.builder().callbackData("meeting_cancel=" + meeting.id.toString())
+                            .text("Отменить встречу").build()
+                    )
+                )
+                //set user id with who meeting
+                val user = userService.getUserById(meeting.userId)
+                val message = SendMessage()
+                message.replyMarkup = inlineKeyboardMarkup
+                message.chatId = ctx.update().stringChatId()
+                message.text =
+                    "Встреча с : " + user.telegramUsername + "\n" + "Время встречи: " + meeting.preferDate + "\n" + "Тема встречи: " + meeting.topicTypeEnum.name
+
+                ctx.bot().execute(message)
+            }
+        }
+        .post { ctx: MessageContext -> println("post ${ctx.arguments()}") }
+        .build()
+
     fun createMeeting(): Reply = Reply.of({ b, update ->
         sessionService.getStateByChatId(update.chatId()).apply {
             sessionService.saveState(this.copy(
