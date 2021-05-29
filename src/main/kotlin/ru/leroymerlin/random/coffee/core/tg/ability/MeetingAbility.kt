@@ -60,6 +60,13 @@ class MeetingAbility : AbilityExtension {
             .build()
 
     fun createMeeting(): Reply = Reply.of({ b, update ->
+        sessionService.getStateByChatId(update.chatId()).apply {
+            sessionService.saveState(this.copy(
+                    draftMeeting = null,
+                    currentChatState = ChatState.NONE
+            ))
+        }
+
         val message = SendMessage()
         val replyKeyboardMarkup = ReplyKeyboardMarkup()
         replyKeyboardMarkup.keyboard = listOf(

@@ -1,6 +1,7 @@
 package ru.leroymerlin.random.coffee.core.tg.ability
 
 enum class CommandList(val command: String) {
+    ACQUAINTANCE_FILL_CARD("Заполнить карточку"),
     ACQUAINTANCE_INPUT_EMAIL("Почта"),
     ACQUAINTANCE_INPUT_PHONE("Телефон"),
     ACQUAINTANCE_INPUT_TELEGRAM("Телеграм"),

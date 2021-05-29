@@ -31,18 +31,6 @@ class StartAbility : AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .locality(Locality.USER)
                 .action { ctx: MessageContext ->
-                    val message = SendMessage()
-                    // TODO if new user
-                    val replyKeyboardMarkup = ReplyKeyboardMarkup()
-                    val firstRow = KeyboardRow()
-                    firstRow.add(KeyboardButton.builder().text("Заполнить карточку").build())
-                    firstRow.add(KeyboardButton.builder().text("Хочу кофе").build())
-                    replyKeyboardMarkup.keyboard = listOf(firstRow)
-                    replyKeyboardMarkup.oneTimeKeyboard = true
-                    message.replyMarkup = replyKeyboardMarkup
-                    message.chatId = ctx.chatId().toString()
-                    message.text = "Давай знакомиться"
-                    ctx.bot().execute(message)
                     val user = userService.getByTelegramUserId(ctx.user().id) ?: userService.create(UserCreateRequest(
                             ctx.user().id, ctx.user().userName
                     ))
@@ -53,6 +41,21 @@ class StartAbility : AbilityExtension {
                             telegramChatId = ctx.chatId(),
                             currentChatState = ChatState.NONE
                     ))
+
+                    val message = SendMessage()
+                    // TODO if new user
+                    val replyKeyboardMarkup = ReplyKeyboardMarkup()
+                    val firstRow = KeyboardRow()
+                    firstRow.add(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_FILL_CARD.command).build())
+                    if (currentSession.isAboutFill() && currentSession.isCommunicationFill() && currentSession.isNameAndSurnameFill()) {
+                        firstRow.add(KeyboardButton.builder().text(CommandList.MEETING_CREATE.command).build())
+                    }
+                    replyKeyboardMarkup.keyboard = listOf(firstRow)
+                    replyKeyboardMarkup.oneTimeKeyboard = true
+                    message.replyMarkup = replyKeyboardMarkup
+                    message.chatId = ctx.chatId().toString()
+                    message.text = "Давай знакомиться"
+                    ctx.bot().execute(message)
                 }
                 .build()
     }

@@ -183,14 +183,4 @@ class MockedAbilities : AbilityExtension {
                 .build()
     }
 
-    fun helpAbility(): Ability {
-        return Ability.builder()
-                .name("help")
-                .info("help")
-                .privacy(Privacy.PUBLIC)
-                .locality(Locality.USER)
-                .action { ctx: MessageContext -> ctx.bot().silent().send("mock", ctx.chatId()) }
-                .build()
-    }
-
 }

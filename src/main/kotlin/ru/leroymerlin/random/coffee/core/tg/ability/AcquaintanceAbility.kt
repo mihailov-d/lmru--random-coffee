@@ -32,6 +32,15 @@ class AcquaintanceAbility : AbilityExtension {
 
     fun fillCardReply(): Reply {
         return Reply.of({ b, update ->
+            sessionService.getStateByChatId(update.chatId()).apply {
+                sessionService.saveState(this.copy(
+                        draftCommunicationUser = null,
+                        draftAboutUser = null,
+                        draftBasicUser = null,
+                        currentChatState = ChatState.NONE
+                ))
+            }
+
             val message = SendMessage()
             val replyKeyboardMarkup = ReplyKeyboardMarkup()
             replyKeyboardMarkup.keyboard = listOf(
@@ -43,7 +52,7 @@ class AcquaintanceAbility : AbilityExtension {
             message.chatId = update.stringChatId()
             message.text = "Выберите наиболее удобный связи с тобой"
             b.execute(message)
-        }, textEquals("Заполнить карточку"))
+        }, textEquals(CommandList.ACQUAINTANCE_FILL_CARD.command))
     }
 
     fun typeEmailReply(): Reply = Reply.of({ b, update ->
