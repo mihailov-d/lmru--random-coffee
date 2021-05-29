@@ -6,7 +6,9 @@ import ru.leroymerlin.random.coffee.core.dto.request.MeetingLinkUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingRequestFromUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingRequestToUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingUpdateRequest
+import ru.leroymerlin.random.coffee.core.dto.request.TopicTypeEnum
 import ru.leroymerlin.random.coffee.core.model.Meeting
+import java.time.LocalDateTime
 import java.util.UUID
 
 interface MeetingService {
@@ -18,6 +20,9 @@ interface MeetingService {
     fun create(createReq: MeetingCreateRequest): Meeting
     // FIXME Change type to List from Set
     fun getAllActiveMeetingByUser(id: UUID):  Set<Meeting>
+    fun getMeetingsForUser(userId: UUID, statuses: Set<MeetingStatusEnum>): Set<Meeting>
+    fun findAllActiveByPreferDateAndTopicTypeEnum(preferDate: LocalDateTime, topicTypeEnum: TopicTypeEnum): List<Meeting>
+    fun findAllRandomMeetings(): List<Meeting>
     fun end(id: UUID)
     // Cancel meeting
     fun cancel(id: UUID)

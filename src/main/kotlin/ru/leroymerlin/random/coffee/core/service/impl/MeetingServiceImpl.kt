@@ -1,8 +1,6 @@
 package ru.leroymerlin.random.coffee.core.service.impl
 
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum
 import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum.ACTIVE
@@ -16,12 +14,13 @@ import ru.leroymerlin.random.coffee.core.dto.request.MeetingCreateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingLinkUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingRequestFromUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingRequestToUpdateRequest
-import ru.leroymerlin.random.coffee.core.dto.request.MeetingUpdateRequest
+import ru.leroymerlin.random.coffee.core.dto.request.TopicTypeEnum
 import ru.leroymerlin.random.coffee.core.exception.CannotUpdateMeetingException
 import ru.leroymerlin.random.coffee.core.model.Meeting
 import ru.leroymerlin.random.coffee.core.repository.MeetingRepository
 import ru.leroymerlin.random.coffee.core.service.MeetingService
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.UUID
 
 @Service
@@ -33,8 +32,7 @@ class MeetingServiceImpl(
         val log = LoggerFactory.getLogger(this::class.java)
         val PROHIBITED_STATUSES = setOf(DELETED, CANCELLED, CONFIRMED)
     }
-    @Autowired
-    internal lateinit var meetingRepository: MeetingRepository
+
     override fun get(meetingId: UUID): Meeting = meetingRepository.findOneById(meetingId)
 
     override fun create(createReq: MeetingCreateRequest): Meeting {
@@ -58,9 +56,23 @@ class MeetingServiceImpl(
         return meetingRepository.findAllByUserIdAndStatus(id, MeetingStatusEnum.ACTIVE)
     }
 
+    override fun findAllActiveByPreferDateAndTopicTypeEnum(
+        preferDate: LocalDateTime,
+        topicTypeEnum: TopicTypeEnum
+    ): List<Meeting> {
+        val startDate = LocalDateTime.of(preferDate.toLocalDate(), LocalTime.MIN)
+        val endDate = LocalDateTime.of(preferDate.toLocalDate(), LocalTime.MAX)
+        return meetingRepository.findAllByStatusAndTopicTypeEnumAndPreferDateBetween(
+            ACTIVE,
+            topicTypeEnum,
+            startDate,
+            endDate
+        )
+    }
+
     override fun end(id: UUID) {
         val meetingEntity = meetingRepository.findOneById(id)
-                .copy(status = MeetingStatusEnum.FINISHED, editedDate = LocalDateTime.now())
+            .copy(status = MeetingStatusEnum.FINISHED, editedDate = LocalDateTime.now())
         // TODO send message to other interlocutor
         meetingRepository.save(meetingEntity)
     }
@@ -137,7 +149,7 @@ class MeetingServiceImpl(
 
     override fun update(updateReq: MeetingLinkUpdateRequest): Meeting {
         val meeting = meetingRepository.findOneById(updateReq.id)
-        if (meeting.status == RANDOM) {
+        if (meeting.status in setOf(RANDOM, REQUEST)) {
             return meetingRepository.save(
                 meeting.copy(
                     linkMeetingId = updateReq.requestLinkMeetingId,
@@ -148,5 +160,9 @@ class MeetingServiceImpl(
         }
         log.debug("Cannot update status of meeting ${updateReq.id} from ${meeting.status} to $CONFIRMED")
         throw CannotUpdateMeetingException(meeting.status, CONFIRMED)
+    }
+
+    override fun findAllRandomMeetings(): List<Meeting> {
+        return meetingRepository.findAllByStatusEquals(RANDOM).filter { it.requestToMeetingId == null }
     }
 }

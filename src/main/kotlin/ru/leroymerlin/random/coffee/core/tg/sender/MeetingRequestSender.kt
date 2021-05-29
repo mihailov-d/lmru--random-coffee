@@ -6,6 +6,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 import ru.leroymerlin.random.coffee.configuration.RandomCoffeeBot
+import ru.leroymerlin.random.coffee.core.dto.UserDto
+import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum.EMAIL
+import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum.PHONE
+import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum.TELEGRAM
+import ru.leroymerlin.random.coffee.core.model.User
 import ru.leroymerlin.random.coffee.core.service.MeetingService
 import ru.leroymerlin.random.coffee.core.service.SessionService
 import ru.leroymerlin.random.coffee.core.service.UserService
@@ -78,7 +83,8 @@ class MeetingRequestSender {
         messageToMeetingCreator.text = """
             Предложение о встрече на ${meeting.preferDate.toLocalDate()} подтверждено
             
-            Свяжитесь друг с другом по указанным контактным данным NULL
+            Свяжитесь друг с другом по указанным контактным данным:
+            ${getContact(userCreatedMeeting)}
         """.trimIndent()
         messageToMeetingCreator.enableMarkdown(true)
         randomCoffeeBot.execute(messageToMeetingCreator)
@@ -106,5 +112,13 @@ class MeetingRequestSender {
         """.trimIndent()
 //        messageToMeetingCreator.enableMarkdown(true)
         randomCoffeeBot.execute(messageToMeetingCreator)
+    }
+
+    fun getContact(user: User): String {
+        return when (user.preferCommunications!!.first()) {
+            TELEGRAM -> "Telegram @${user.telegramUsername}"
+            PHONE -> "телефон ${user.phone}"
+            EMAIL -> "email ${user.email}"
+        }
     }
 }

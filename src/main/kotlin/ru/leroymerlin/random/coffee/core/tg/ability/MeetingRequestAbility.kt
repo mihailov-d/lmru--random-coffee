@@ -6,6 +6,7 @@ import org.telegram.abilitybots.api.objects.Reply
 import org.telegram.abilitybots.api.util.AbilityExtension
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
 import ru.leroymerlin.random.coffee.core.service.MeetingService
+import ru.leroymerlin.random.coffee.core.service.RandomService
 import ru.leroymerlin.random.coffee.core.service.UserService
 import ru.leroymerlin.random.coffee.core.tg.sender.MeetingRequestSender
 import ru.leroymerlin.random.coffee.core.util.message.MessageUtil
@@ -25,6 +26,9 @@ class MeetingRequestAbility : AbilityExtension {
 
     @Autowired
     lateinit var userService: UserService
+
+    @Autowired
+    lateinit var randomService: RandomService
 
     fun meetingRequestReply(): Reply = Reply.of({ b, update ->
         // meetingId and "approve" or "nope"
@@ -59,6 +63,7 @@ class MeetingRequestAbility : AbilityExtension {
         """.trimIndent()
             // TODO in background
             // TODO link and change meeting status
+            randomService.approve(meetingId)
             meetingRequestSender.sendSuccess(splitData.first)
         } else if (splitData.second == "nope") {
             editMessageText.text = """
@@ -74,6 +79,7 @@ class MeetingRequestAbility : AbilityExtension {
             Вы отклонили встречу ❌
         """.trimIndent()
             // TODO change meeting status
+            randomService.nope(meetingId)
         }
 //        editMessageText.enableMarkdown(true)
         b.execute(editMessageText)
