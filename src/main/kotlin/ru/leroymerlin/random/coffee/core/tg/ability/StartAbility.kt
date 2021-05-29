@@ -13,8 +13,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow
 import ru.leroymerlin.random.coffee.core.dto.ChatState
 import ru.leroymerlin.random.coffee.core.dto.request.UserCreateRequest
+import ru.leroymerlin.random.coffee.core.repository.MeetingRepository
 import ru.leroymerlin.random.coffee.core.service.SessionService
 import ru.leroymerlin.random.coffee.core.service.UserService
+import ru.leroymerlin.random.coffee.core.tg.sender.MeetingRequestSender
 
 @Component
 class StartAbility : AbilityExtension {
@@ -24,6 +26,12 @@ class StartAbility : AbilityExtension {
     @Autowired
     lateinit var userService: UserService
 
+    @Autowired
+    lateinit var meetingRequestSender: MeetingRequestSender
+
+    @Autowired
+    lateinit var meetingRepository: MeetingRepository
+
     fun startAbility(): Ability {
         return Ability.builder()
                 .name("start")
@@ -31,14 +39,16 @@ class StartAbility : AbilityExtension {
                 .privacy(Privacy.PUBLIC)
                 .locality(Locality.USER)
                 .action { ctx: MessageContext ->
+                    val tgChatId = ctx.chatId()
+
                     val user = userService.getByTelegramUserId(ctx.user().id) ?: userService.create(UserCreateRequest(
                             ctx.user().id, ctx.user().userName
                     ))
-                    val currentSession = sessionService.getStateByChatId(ctx.chatId())
+                    val currentSession = sessionService.getStateByChatId(tgChatId)
                     sessionService.saveState(currentSession.copy(
                             userId = user.id,
                             telegramUserId = ctx.user().id,
-                            telegramChatId = ctx.chatId(),
+                            telegramChatId = tgChatId,
                             currentChatState = ChatState.NONE
                     ))
                     val profileIsFill = currentSession.isAboutFill() && currentSession.isCommunicationFill() && currentSession.isNameAndSurnameFill()
@@ -53,13 +63,28 @@ class StartAbility : AbilityExtension {
                     replyKeyboardMarkup.keyboard = listOf(firstRow)
                     replyKeyboardMarkup.oneTimeKeyboard = true
                     message.replyMarkup = replyKeyboardMarkup
-                    message.chatId = ctx.chatId().toString()
+                    message.chatId = tgChatId.toString()
                     message.text = """
                         Привет! 👋
                         
                         Я бот LM Random Coffee, моя миссия – помогать коллегам найти интересных собеседников за чашечкой кофе!
                     """.trimIndent()
                     ctx.bot().execute(message)
+                }
+                .build()
+    }
+
+    fun startTestAbility(): Ability {
+        return Ability.builder()
+                .name("start_test")
+                .info("start test")
+                .privacy(Privacy.PUBLIC)
+                .locality(Locality.USER)
+                .action { ctx: MessageContext ->
+                    val tgChatId = ctx.chatId()
+                    val meeting = meetingRepository.findAll().random()
+
+                    meetingRequestSender.sendPropose(tgChatId, meeting.id)
                 }
                 .build()
     }

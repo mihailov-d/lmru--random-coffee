@@ -1,5 +1,6 @@
 package ru.leroymerlin.random.coffee.core.service
 
+import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingCreateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingLinkUpdateRequest
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingRequestFromUpdateRequest
@@ -9,6 +10,10 @@ import ru.leroymerlin.random.coffee.core.model.Meeting
 import java.util.UUID
 
 interface MeetingService {
+
+    // internal meetingId
+    fun get(meetingId: UUID): Meeting
+
     // Create meeting
     fun create(createReq: MeetingCreateRequest): Meeting
     // FIXME Change type to List from Set

@@ -161,7 +161,7 @@ class MockedAbilities : AbilityExtension {
         editMessageText.messageId = update.callbackQuery.message.messageId
         editMessageText.text = "Ok, you push ${update.callbackQuery.data} and text `${update.callbackQuery.message.text}`"
         b.execute(editMessageText)
-    }, Predicate { update -> update.hasCallbackQuery() })
+    }, Predicate { update -> update.hasCallbackQuery() && false })
 
     fun confirmMeetingAbility(): Ability {
         return Ability.builder()

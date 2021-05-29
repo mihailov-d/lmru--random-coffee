@@ -37,6 +37,8 @@ class UserServiceImpl(
         }
     }
 
+    override fun get(userId: UUID): User = userRepository.findOneById(userId)
+
     override fun getUserById(id: UUID): User {
         return userRepository.findOneById(id)
     }

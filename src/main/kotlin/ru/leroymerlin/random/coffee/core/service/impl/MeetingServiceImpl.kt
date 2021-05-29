@@ -1,6 +1,8 @@
 package ru.leroymerlin.random.coffee.core.service.impl
 
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum
 import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum.ACTIVE
@@ -31,6 +33,9 @@ class MeetingServiceImpl(
         val log = LoggerFactory.getLogger(this::class.java)
         val PROHIBITED_STATUSES = setOf(DELETED, CANCELLED, CONFIRMED)
     }
+    @Autowired
+    internal lateinit var meetingRepository: MeetingRepository
+    override fun get(meetingId: UUID): Meeting = meetingRepository.findOneById(meetingId)
 
     override fun create(createReq: MeetingCreateRequest): Meeting {
         val meeting = Meeting(
@@ -44,13 +49,18 @@ class MeetingServiceImpl(
         return meetingRepository.save(meeting)
     }
 
+
+    override fun getMeetingsForUser(userId: UUID, statuses: Set<MeetingStatusEnum>): Set<Meeting> {
+        return statuses.map { meetingRepository.findAllByUserIdAndStatus(userId, it) }.flatten().toSet()
+    }
+
     override fun getAllActiveMeetingByUser(id: UUID): Set<Meeting> {
         return meetingRepository.findAllByUserIdAndStatus(id, MeetingStatusEnum.ACTIVE)
     }
 
     override fun end(id: UUID) {
         val meetingEntity = meetingRepository.findOneById(id)
-            .copy(status = MeetingStatusEnum.FINISHED, editedDate = LocalDateTime.now())
+                .copy(status = MeetingStatusEnum.FINISHED, editedDate = LocalDateTime.now())
         // TODO send message to other interlocutor
         meetingRepository.save(meetingEntity)
     }
