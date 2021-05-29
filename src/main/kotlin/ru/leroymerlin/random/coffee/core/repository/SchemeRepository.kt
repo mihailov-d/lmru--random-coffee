@@ -21,7 +21,7 @@ interface UserRepository : MongoRepository<User, String> {
 @Repository
 interface MeetingRepository : MongoRepository<Meeting, String> {
     fun findOneById(id: UUID): Meeting
-    fun findAllByUserIdAndStatus(userId: UUID, status: MeetingStatusEnum): List<Meeting>
+    fun findAllByUserIdAndStatus(userId: UUID, status: MeetingStatusEnum): Set<Meeting>
     fun deleteById(id: UUID)
 }
 

@@ -43,6 +43,16 @@ class MeetingServiceImpl : MeetingService {
         return meetingRepository.save(meetingEntity)
     }
 
+    override fun getAllActiveMeetingByUser(id: UUID): Set<Meeting> {
+        return meetingRepository.findAllByUserIdAndStatus(id, MeetingStatusEnum.ACTIVE)
+    }
+
+    override fun end(id: UUID) {
+        val meetingEntity = meetingRepository.findOneById(id)
+            .copy(status = MeetingStatusEnum.FINISHED)
+        meetingRepository.save(meetingEntity)
+    }
+
     override fun cancel(id: UUID) {
         val meetingEntity = meetingRepository.findOneById(id)
             .copy(status = MeetingStatusEnum.CANCELLED, editedDate = LocalDateTime.now())
