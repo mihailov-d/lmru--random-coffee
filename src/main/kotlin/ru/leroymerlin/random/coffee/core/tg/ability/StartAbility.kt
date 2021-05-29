@@ -41,20 +41,24 @@ class StartAbility : AbilityExtension {
                             telegramChatId = ctx.chatId(),
                             currentChatState = ChatState.NONE
                     ))
+                    val profileIsFill = currentSession.isAboutFill() && currentSession.isCommunicationFill() && currentSession.isNameAndSurnameFill()
 
                     val message = SendMessage()
-                    // TODO if new user
                     val replyKeyboardMarkup = ReplyKeyboardMarkup()
                     val firstRow = KeyboardRow()
-                    firstRow.add(KeyboardButton.builder().text(CommandList.ACQUAINTANCE_FILL_CARD.command).build())
-                    if (currentSession.isAboutFill() && currentSession.isCommunicationFill() && currentSession.isNameAndSurnameFill()) {
-                        firstRow.add(KeyboardButton.builder().text(CommandList.MEETING_CREATE.command).build())
+                    firstRow.add(KeyboardButton.builder().text(if (profileIsFill) CommandList.ACQUAINTANCE_FILL_CARD_NEW_USER.command else CommandList.ACQUAINTANCE_FILL_CARD.command).build())
+                    if (profileIsFill) {
+                        firstRow.add(KeyboardButton.builder().text(CommandList.MEETING_CREATE_FROM_START.command).build())
                     }
                     replyKeyboardMarkup.keyboard = listOf(firstRow)
                     replyKeyboardMarkup.oneTimeKeyboard = true
                     message.replyMarkup = replyKeyboardMarkup
                     message.chatId = ctx.chatId().toString()
-                    message.text = "Давай знакомиться"
+                    message.text = """
+                        Привет! 👋
+                        
+                        Я бот LM Random Coffee, моя миссия – помогать коллегам найти интересных собеседников за чашечкой кофе!
+                    """.trimIndent()
                     ctx.bot().execute(message)
                 }
                 .build()
