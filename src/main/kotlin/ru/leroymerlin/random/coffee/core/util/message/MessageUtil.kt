@@ -1,6 +1,9 @@
 package ru.leroymerlin.random.coffee.core.util.message
 
 import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum
+import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum.EMAIL
+import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum.PHONE
+import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum.TELEGRAM
 import ru.leroymerlin.random.coffee.core.dto.request.TopicTypeEnum
 import ru.leroymerlin.random.coffee.core.model.User
 
@@ -18,6 +21,14 @@ object MessageUtil {
             UserPreferCommunicationEnum.TELEGRAM -> "@${user.telegramUsername}"
             UserPreferCommunicationEnum.PHONE -> user.phone ?: "нет телофона"
             UserPreferCommunicationEnum.EMAIL -> user.email ?: "нет email"
+        }
+    }
+
+    fun getContact(user: User): String {
+        return when (user.preferCommunications!!.first()) {
+            TELEGRAM -> "Telegram @${user.telegramUsername}"
+            PHONE -> "телефон ${user.phone}"
+            EMAIL -> "email ${user.email}"
         }
     }
 }

@@ -15,6 +15,7 @@ import ru.leroymerlin.random.coffee.core.service.MeetingService
 import ru.leroymerlin.random.coffee.core.service.SessionService
 import ru.leroymerlin.random.coffee.core.service.UserService
 import ru.leroymerlin.random.coffee.core.util.TgChatId
+import ru.leroymerlin.random.coffee.core.util.message.MessageUtil.getContact
 import ru.leroymerlin.random.coffee.core.util.message.MessageUtil.meetingTopicMessageString
 import java.util.UUID
 
@@ -114,11 +115,5 @@ class MeetingRequestSender {
         randomCoffeeBot.execute(messageToMeetingCreator)
     }
 
-    fun getContact(user: User): String {
-        return when (user.preferCommunications!!.first()) {
-            TELEGRAM -> "Telegram @${user.telegramUsername}"
-            PHONE -> "телефон ${user.phone}"
-            EMAIL -> "email ${user.email}"
-        }
-    }
+
 }

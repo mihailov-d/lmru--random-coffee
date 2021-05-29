@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component
 import org.telegram.abilitybots.api.objects.Reply
 import org.telegram.abilitybots.api.util.AbilityExtension
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
+import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum.RANDOM
 import ru.leroymerlin.random.coffee.core.service.MeetingService
 import ru.leroymerlin.random.coffee.core.service.RandomService
 import ru.leroymerlin.random.coffee.core.service.UserService
@@ -40,6 +41,7 @@ class MeetingRequestAbility : AbilityExtension {
         val meeting = meetingService.get(meetingId)
 
         val userCreatedMeeting = userService.get(meeting.userId)
+        var otherUser = userService.get(if (meeting.status == RANDOM) meeting.requestFromMeetingId!! else meeting.requestToMeetingId!!)
 
         val editMessageText = EditMessageText()
         editMessageText.chatId = update.stringChatId()
@@ -59,7 +61,7 @@ class MeetingRequestAbility : AbilityExtension {
             
             Вы подтвердили встречу ✅
             
-            Свяжитесь друг с другом по указанным контактным данным: ${communicationChannelString(userCreatedMeeting)}
+            Свяжитесь друг с другом по указанным контактным данным: ${MessageUtil.getContact(userCreatedMeeting)}
         """.trimIndent()
             // TODO in background
             // TODO link and change meeting status
