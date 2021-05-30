@@ -64,8 +64,8 @@ class MeetingRequestAbility : AbilityExtension {
         """.trimIndent()
             // TODO in background
             // TODO link and change meeting status
-            randomService.approve(meetingId)
             meetingRequestSender.sendSuccess(splitData.first)
+            randomService.approve(meetingId)
         } else if (splitData.second == "nope") {
             editMessageText.text = """
             Предложение о встрече c "${userCreatedMeeting.name} ${userCreatedMeeting.surname}", ${meeting.preferDate.toLocalDate()}

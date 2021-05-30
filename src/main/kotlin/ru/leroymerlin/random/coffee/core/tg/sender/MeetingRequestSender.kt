@@ -6,11 +6,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
 import ru.leroymerlin.random.coffee.configuration.RandomCoffeeBot
-import ru.leroymerlin.random.coffee.core.dto.UserDto
-import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum.EMAIL
-import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum.PHONE
-import ru.leroymerlin.random.coffee.core.dto.UserPreferCommunicationEnum.TELEGRAM
-import ru.leroymerlin.random.coffee.core.model.User
 import ru.leroymerlin.random.coffee.core.service.MeetingService
 import ru.leroymerlin.random.coffee.core.service.SessionService
 import ru.leroymerlin.random.coffee.core.service.UserService
@@ -75,6 +70,9 @@ class MeetingRequestSender {
     fun sendSuccess(meetingId: UUID) {
         val meeting = meetingService.get(meetingId)
 
+        val toMeeting = meetingService.get(meeting.requestToMeetingId!!)
+
+        val toUser = userService.get(toMeeting.userId)
         val userCreatedMeeting = userService.get(meeting.userId)
 
         val session = sessionService.getState(userCreatedMeeting.telegramUserId!!)!!
@@ -85,9 +83,9 @@ class MeetingRequestSender {
             Предложение о встрече на ${meeting.preferDate.toLocalDate()} подтверждено
             
             Свяжитесь друг с другом по указанным контактным данным:
-            ${getContact(userCreatedMeeting)}
+            ${getContact(toUser)}
         """.trimIndent()
-        messageToMeetingCreator.enableMarkdown(true)
+//        messageToMeetingCreator.enableMarkdown(true)
         randomCoffeeBot.execute(messageToMeetingCreator)
     }
 

@@ -85,9 +85,7 @@ class RandomServiceImpl : RandomService {
                     false
                 }
                 meetingService.update(MeetingRequestToUpdateRequest(randomMeeting.id, requestMeeting.id))
-                val randomUser = userService.getUserById(randomMeeting.userId)
                 val requestUser = userService.getUserById(requestMeeting.userId)
-                val randomUserSession = sessionService.getState(randomUser.telegramUserId!!)
                 val requestUserSession = sessionService.getState(requestUser.telegramUserId!!)
                 meetingRequestSender.sendPropose(requestUserSession!!.telegramChatId, randomMeeting.id)
                 true

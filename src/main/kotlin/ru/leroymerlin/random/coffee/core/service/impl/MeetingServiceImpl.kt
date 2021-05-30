@@ -119,7 +119,7 @@ class MeetingServiceImpl(
     }
 
     override fun update(updateReq: MeetingRequestFromUpdateRequest): Meeting {
-        val meeting = meetingRepository.findOneById(updateReq.id)
+        val meeting = meetingRepository.findOneById(updateReq.requestToMeetingId)
         if (meeting.status == ACTIVE) {
             return meetingRepository.save(
                     meeting.copy(
@@ -129,7 +129,7 @@ class MeetingServiceImpl(
                     )
             )
         }
-        log.debug("Cannot update status of meeting ${updateReq.id} from ${meeting.status} to $REQUEST")
+        log.debug("Cannot update status of meeting ${updateReq.requestToMeetingId} from ${meeting.status} to $REQUEST")
         throw CannotUpdateMeetingException(meeting.status, REQUEST)
     }
 
