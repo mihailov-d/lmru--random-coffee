@@ -5,7 +5,9 @@ import org.springframework.stereotype.Component
 import org.telegram.abilitybots.api.objects.Reply
 import org.telegram.abilitybots.api.util.AbilityExtension
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
+import ru.leroymerlin.random.coffee.core.dto.MeetingStatusEnum.RANDOM
 import ru.leroymerlin.random.coffee.core.service.MeetingService
+import ru.leroymerlin.random.coffee.core.service.RandomService
 import ru.leroymerlin.random.coffee.core.service.UserService
 import ru.leroymerlin.random.coffee.core.tg.sender.MeetingRequestSender
 import ru.leroymerlin.random.coffee.core.util.message.MessageUtil
@@ -25,6 +27,9 @@ class MeetingRequestAbility : AbilityExtension {
 
     @Autowired
     lateinit var userService: UserService
+
+    @Autowired
+    lateinit var randomService: RandomService
 
     fun meetingRequestReply(): Reply = Reply.of({ b, update ->
         // meetingId and "approve" or "nope"
@@ -55,11 +60,12 @@ class MeetingRequestAbility : AbilityExtension {
             
             Вы подтвердили встречу ✅
             
-            Свяжитесь друг с другом по указанным контактным данным: ${communicationChannelString(userCreatedMeeting)}
+            Свяжитесь друг с другом по указанным контактным данным: ${MessageUtil.getContact(userCreatedMeeting)}
         """.trimIndent()
             // TODO in background
             // TODO link and change meeting status
             meetingRequestSender.sendSuccess(splitData.first)
+            randomService.approve(meetingId)
         } else if (splitData.second == "nope") {
             editMessageText.text = """
             Предложение о встрече c "${userCreatedMeeting.name} ${userCreatedMeeting.surname}", ${meeting.preferDate.toLocalDate()}
@@ -74,6 +80,7 @@ class MeetingRequestAbility : AbilityExtension {
             Вы отклонили встречу ❌
         """.trimIndent()
             // TODO change meeting status
+            randomService.nope(meetingId)
         }
 //        editMessageText.enableMarkdown(true)
         b.execute(editMessageText)

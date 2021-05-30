@@ -17,5 +17,8 @@ data class MeetingDto(
         val comment: String? = null,
         val locationType: LocationTypeEnum? = null,
         val location: String? = null,
+        val requestToMeetingId: UUID? = null,
+        val requestFromMeetingId: UUID? = null,
+        val linkMeetingId: UUID? = null,
         val status: MeetingStatusEnum = DRAFT
 )

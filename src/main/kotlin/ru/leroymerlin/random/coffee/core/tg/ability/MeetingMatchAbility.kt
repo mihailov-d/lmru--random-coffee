@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import ru.leroymerlin.random.coffee.core.dto.ChatState
 import ru.leroymerlin.random.coffee.core.dto.request.MeetingCreateRequest
 import ru.leroymerlin.random.coffee.core.service.MeetingService
+import ru.leroymerlin.random.coffee.core.service.RandomService
 import ru.leroymerlin.random.coffee.core.service.SessionService
 import ru.leroymerlin.random.coffee.core.util.chatId
 import ru.leroymerlin.random.coffee.core.util.stringChatId
@@ -22,6 +23,9 @@ class MeetingMatchAbility : AbilityExtension {
     @Autowired
     lateinit var sessionService: SessionService
 
+    @Autowired
+    lateinit var randomService: RandomService
+
     fun publishMeetingReply(): Reply = Reply.of({ b, update ->
         val message = SendMessage()
         message.replyMarkup = ReplyKeyboardRemove(true)
@@ -30,8 +34,8 @@ class MeetingMatchAbility : AbilityExtension {
         val sessionDto = sessionService.getStateByChatId(update.chatId())
         // TODO check draft not null!!
         val draftMeeting = sessionDto.draftMeeting
-        meetingService.create(MeetingCreateRequest(sessionDto.userId, draftMeeting!!.topicType!!, draftMeeting.preferDate!!))
-
+        val meeting = meetingService.create(MeetingCreateRequest(sessionDto.userId, draftMeeting!!.topicType!!, draftMeeting.preferDate!!))
+        randomService.random(meeting)
         sessionService.saveState(sessionDto.copy(draftMeeting = null, currentChatState = ChatState.NONE))
         b.execute(message)
         // TODO meeting publicate logic

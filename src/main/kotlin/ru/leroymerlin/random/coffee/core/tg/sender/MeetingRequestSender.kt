@@ -10,6 +10,7 @@ import ru.leroymerlin.random.coffee.core.service.MeetingService
 import ru.leroymerlin.random.coffee.core.service.SessionService
 import ru.leroymerlin.random.coffee.core.service.UserService
 import ru.leroymerlin.random.coffee.core.util.TgChatId
+import ru.leroymerlin.random.coffee.core.util.message.MessageUtil.getContact
 import ru.leroymerlin.random.coffee.core.util.message.MessageUtil.meetingTopicMessageString
 import java.util.UUID
 
@@ -69,6 +70,9 @@ class MeetingRequestSender {
     fun sendSuccess(meetingId: UUID) {
         val meeting = meetingService.get(meetingId)
 
+        val toMeeting = meetingService.get(meeting.requestToMeetingId!!)
+
+        val toUser = userService.get(toMeeting.userId)
         val userCreatedMeeting = userService.get(meeting.userId)
 
         val session = sessionService.getState(userCreatedMeeting.telegramUserId!!)!!
@@ -78,9 +82,10 @@ class MeetingRequestSender {
         messageToMeetingCreator.text = """
             Предложение о встрече на ${meeting.preferDate.toLocalDate()} подтверждено
             
-            Свяжитесь друг с другом по указанным контактным данным NULL
+            Свяжитесь друг с другом по указанным контактным данным:
+            ${getContact(toUser)}
         """.trimIndent()
-        messageToMeetingCreator.enableMarkdown(true)
+//        messageToMeetingCreator.enableMarkdown(true)
         randomCoffeeBot.execute(messageToMeetingCreator)
     }
 
@@ -107,4 +112,6 @@ class MeetingRequestSender {
 //        messageToMeetingCreator.enableMarkdown(true)
         randomCoffeeBot.execute(messageToMeetingCreator)
     }
+
+
 }

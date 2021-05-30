@@ -116,3 +116,6 @@ fabric.properties
 src/main/resources/bootstrap-localdev.yml
 *.iml
 .idea
+logs
+$TELEGRAM_USERNAME*
+*bot
